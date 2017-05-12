@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+            <div id="welcome">
+                <h1><span>Welcome to</span> SmokeTest Tool with
+                    Symfony {{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</h1>
+            </div>
+
+            {#<div id="status">#}
+            {#<p>#}
+            {#<svg id="icon-status" width="1792" height="1792" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1671 566q0 40-28 68l-724 724-136 136q-28 28-68 28t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28 68-28t68 28l294 295 656-657q28-28 68-28t68 28l136 136q28 28 28 68z" fill="#759E1A"/></svg>#}
+            {#</p>#}
+            {#</div>#}
+
+            <div id="next">
+                <h2>What's next?</h2>
+                <ul>
+                    <li><a href="/discover">Discover</a></li>
+                    <li><a href="/discover">Discover</a></li>
+                    {#<li><a href="/fail">Fail</a></li>#}
+                    {#<li><a href="{{ asset('/some/file.pdf') }}">Pdf</a></li>#}
+                    <li><a href="http://static.smoketest.dev{{ asset('/some/file.pdf') }}">Same Pdf other domain</a></li>
+                    <li><a href="http://static.smoketest.dev{{ asset('/some/file.pdf') }}">Pdf other domain</a></li>
+                    {#<li><a href="/index/slug">Slug page</a></li>#}
+                    {% if app.request.get('slug') %}
+                        <li><a href="/index/other_slug">Other slug page</a></li>
+                    {% endif %}
+                    {# should not parse this urls#}
+                    {#same url ignore#}
+                    <li><a href="/index">Same page</a></li>
+                    {#skip#}
+                    <li><a href="/_skip">Skip by pattern</a></li>
+                    <li><a href="/_skip2">Skip by pattern2</a></li>
+                    <li><a href="mailto:mail@domain.dev">Mail To</a></li>
+                    {#ignore#}
+                    <li><a href="#hash">Hash</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

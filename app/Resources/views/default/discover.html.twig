@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+            <div id="welcome">
+                <h1><span>Welcome to</span> SmokeTest Discover Tool with
+                    Symfony {{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</h1>
+            </div>
+
+            <div id="next">
+                <h2>What's next?</h2>
+                <div>
+                    <b>Enter Base Url:</b><br>
+                    {{ form(form) }}
+                </div>
+                <div>
+                    <b>Status:</b><br>
+                    {#{{ dump(status) }}#}
+                    <div class="pl5">
+                        {% if link is defined %}
+                            <b>code: {{ link.status }}</b><br>
+                            <div class="pl5">
+                                <a href="{{ link.url }}" target="_blank"
+                                   title="{{ link.url }}">{{ link.url|truncate(85) }}</a>
+
+                                {#{% if screenshot %}#}
+                                    {#<img src="/uploads/screenshot.png" >#}
+                                {#{% endif %}#}
+                            </div>
+                        {% else %}
+                            <b>nothing done</b>
+                        {% endif %}
+                    </div>
+                </div>
+                {#<div>#}
+                    {#<b>url dump:</b><br>#}
+                    {#{{ dump(link) }}#}
+                {#</div>#}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

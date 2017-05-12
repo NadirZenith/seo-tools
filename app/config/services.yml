@@ -11,3 +11,7 @@ services:
         class: Twig_Extensions_Extension_Text
         tags:
           - { name: twig.extension }
+
+    app.url_parser:
+        class: AppBundle\Services\UrlParser
+        arguments: ['@buzz', '@doctrine.orm.default_entity_manager']

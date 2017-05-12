@@ -25,7 +25,7 @@ class SimpleRunType extends AbstractType
                 'data' => $options['test_data'],
                 'label' => false,
                 'attr'=> [
-                    'style' => 'width: 95%; height: 200px; '
+//                    'style' => 'width: 95%; height: 200px; '
                 ]
             ])
         ;

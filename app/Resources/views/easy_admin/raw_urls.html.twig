@@ -1,0 +1,23 @@
+{% if view == 'show' %}
+    {#{{ dump(value) }}#}
+    <table class="raw_urls">
+        <thead>
+            <tr>
+                {% for key in value.0|keys %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for link in value %}
+            <tr>
+                {% for val in link %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    {{ value|length }} raw urls
+{% endif %}

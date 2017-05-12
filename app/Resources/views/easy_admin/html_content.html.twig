@@ -1,0 +1,7 @@
+{% if view == 'show' %}
+    <pre>
+        {{ value|nl2br }}
+    </pre>
+{% else %}
+    {{ value|easyadmin_truncate }}
+{% endif %}

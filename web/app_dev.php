@@ -2,7 +2,9 @@
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Debug\Debug;
-
+//phpinfo();die;
+set_time_limit(0);
+//ini_set('memory_limit','-1');
 include 'debug.php';
 // If you don't want to setup permissions the proper way, just uncomment the following PHP line
 // read http://symfony.com/doc/current/setup.html#checking-symfony-application-configuration-and-setup
