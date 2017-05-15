@@ -1,0 +1,31 @@
+{% if view == 'show' %}
+    {% if value is not empty %}
+        <a href="{{ path('easyadmin', {action: "list", entity: "Link", parent: app.request.get('id')}) }}">list</a>
+        <table class="children_links">
+            <thead>
+            <tr>
+                <th>url</th>
+                <th>status</th>
+                <th>code</th>
+                <th>type</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for link in value %}
+                <tr>
+                    <td>
+                        <a href="{{ path('easyadmin', {action: "show", entity: "Link", id: link.id}) }}">{{ link.url }}</a>
+                    </td>
+                    <td>{{ link.status }}</td>
+                    <td>{{ link.statusCode }}</td>
+                    <td>{{ link.type }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        No children links
+    {% endif %}
+{% else %}
+    {{ value|length }} children links
+{% endif %}

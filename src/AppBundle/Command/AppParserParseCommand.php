@@ -11,15 +11,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AppParseWaitingCommand extends ContainerAwareCommand
+class AppParserParseCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('app:parse:waiting')
-            ->setDescription('...')
-            ->addArgument('argument', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Dont save parsed links');
+            ->setName('app:parser:parse')
+            ->setDescription('Parse waiting links')
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Test mode, do not save');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

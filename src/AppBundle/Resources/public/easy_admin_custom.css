@@ -3,7 +3,6 @@ pre{
 }
 
 
-
 /* raw urls table */
 .raw_urls th{text-align: center;}
 .raw_urls th, .raw_urls td{border: 1px solid #666; white-space: nowrap; padding-right: 15px;}
@@ -17,3 +16,6 @@ pre{
 
     background-color: red;
 }
+/* children links table */
+.children_links th{text-align: center;}
+.children_links th, .children_links td{border: 1px solid #666; white-space: nowrap; padding-right: 15px;}

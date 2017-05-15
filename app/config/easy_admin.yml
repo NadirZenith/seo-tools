@@ -62,4 +62,5 @@ easy_admin:
                     - { property: 'metas'}
                     - { property: 'response', template: 'html_content.html.twig' }
                     - { property: 'rawUrls', template: 'raw_urls.html.twig' }
-                    - { property: 'children' }
+                    - { property: 'children', template: 'children_links.html.twig' }
+                    - { property: 'validation'}

@@ -37,12 +37,11 @@ class UrlParser
         $link->setResponse($response->getContent());
         $link->setStatusCode($response->getStatusCode());
 
-        // if it is an external link, dont need to crawl more urls
+        // if it is an external link, don't need to crawl more urls
         if ($link->getType() === Link::TYPE_EXTERNAL) {
             $link->setStatus(Link::STATUS_PARSED);
             return;
         }
-
 
         $crawler = new Crawler($link->getResponse());
 
@@ -99,7 +98,6 @@ class UrlParser
         }
         $link->setRawUrls($raw_urls);
 
-//        dump($raw_urls);
         foreach ($raw_urls as $url) {
             $childLink = new Link($url['url']);
 
@@ -134,10 +132,7 @@ class UrlParser
 
         $link->setStatus(Link::STATUS_PARSED);
 
-//        dump($link->getChildrenUrls());
-
     }
-
 
     /**
      * @param $options
@@ -145,12 +140,12 @@ class UrlParser
      */
     private function initOptions($options)
     {
-        if (is_array($options)) {
-            return new UrlParserOptions($options);
-        }
-
         if ($options instanceof UrlParserOptions) {
             return $options;
+        }
+
+        if (is_array($options)) {
+            return new UrlParserOptions($options);
         }
 
         throw new \InvalidArgumentException(sprintf("Url parser accepts an array or an UrlParserOptions, %s given.", gettype($options)));
@@ -166,13 +161,8 @@ class UrlParser
         return false;
     }
 
-    private function isLinkInHierarchy($link, $childLink)
+    private function isLinkInHierarchy(Link $link, $childLink)
     {
-
-        if ($link->getUrl() == $childLink->getUrl() || ($link->getRoot() && $link->getRoot()->getUrl() === $childLink->getUrl())) {
-            d('exist');
-            return true;
-        }
 
         $result = $this->entityManager->createQueryBuilder()
             ->select('l')
@@ -185,7 +175,7 @@ class UrlParser
             ])
             ->getQuery()
             ->getResult();
-d($childLink , $link, $result);
+
         return empty($result) ? false : true;
     }
 

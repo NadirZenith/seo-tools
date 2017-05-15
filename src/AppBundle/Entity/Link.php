@@ -3,13 +3,14 @@
 namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Link
  *
- * ORM\Table(name="link", uniqueConstraints={ ORM\UniqueConstraint(name="single_url_hierarchy", columns={"url", "root_id"})})
- * @ORM\Table(name="link")
+ * @ORM\Table(name="link", uniqueConstraints={ @ORM\UniqueConstraint(name="single_url_hierarchy", columns={"url", "root_id"})})
+ * ORM\Table(name="link")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
  * @ORM\HasLifecycleCallbacks()
  */
@@ -65,8 +66,7 @@ class Link
      *
      * @ORM\Column(name="type", type="string", length=255, nullable=true)
      */
-    private $type;
-//    private $type = Link::TYPE_INTERNAL;
+    private $type = Link::TYPE_INTERNAL;
 
     /**
      * @var string
@@ -88,6 +88,13 @@ class Link
      * @ORM\Column(name="metas", type="array", nullable=true)
      */
     private $metas;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="validation", type="array", nullable=true)
+     */
+    private $validation;
 
     /**
      * @var array
@@ -348,9 +355,16 @@ class Link
      */
     public function addChildren(Link $link)
     {
+
+        if ($this->containsLinkChildrenUrl($this, $link->getUrl())) {
+            return false;
+        }
+
         $link->setRoot($this->getRoot() ? $this->getRoot() : $this);
         $link->setParent($this);
         $this->getChildren()->add($link);
+
+        return true;
     }
 
     /**
@@ -420,12 +434,30 @@ class Link
         return $this->getLinkChildrenUrls($this);
     }
 
-//    public function containsLinkChildrenUrl(Link $link, $url = null)
-//    {
-//        return $link->getChildren()->exists(function ($i, $link) use ($url) {
-//            return $link->getUrl() === $url;
-//        });
-//    }
+    public function containsLinkChildrenUrl(Link $link, $url = null)
+    {
+
+        return $link->getChildren()->exists(function ($i, $link) use ($url) {
+            return $link->getUrl() === $url;
+        });
+
+    }
+
+    /**
+     * @return array
+     */
+    public function getValidation()
+    {
+        return $this->validation;
+    }
+
+    /**
+     * @param array $validation
+     */
+    public function setValidation($validation)
+    {
+        $this->validation = $validation;
+    }
 
 //    public function containsHierarchyUrl($url, $debug = false)
 //    {

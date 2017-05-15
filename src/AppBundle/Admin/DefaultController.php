@@ -24,11 +24,19 @@ class DefaultController extends BaseAdminController
 
     protected function createLinkListQueryBuilder($entityClass, $sortDirection, $sortField, $dqlFilter)
     {
-//        dd('xau');
         /** @var QueryBuilder $qb */
         $qb = $this->getDoctrine()->getRepository($entityClass)->createQueryBuilder('l');
 
-        $qb->where('l.parent is NULL');
+        if ($parent = $this->request->get('parent')) {
+            $qb->where('l.parent = :parent');
+
+            $qb->setParameters([
+                'parent' => $parent
+            ]);
+        } else {
+            $qb->where('l.parent is NULL');
+
+        }
 
         $qb->orderBy('l.id', $sortDirection);
 
