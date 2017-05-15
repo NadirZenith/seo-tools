@@ -38,7 +38,7 @@ class AppParserParseCommand extends ContainerAwareCommand
         /** @var Link $link */
         foreach ($links as $k => $link) {
 
-            $output->write(sprintf('%d. Start parsing url %s', ++$k, $link->getUrl()));
+            $output->write(sprintf('%d/%d -> Start parsing url %s', ++$k, count($links), $link->getUrl()));
             $parser->parse($link, [
                 'ignore_patterns' => '/^\/\_/'
             ]);

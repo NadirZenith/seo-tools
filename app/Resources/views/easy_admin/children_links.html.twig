@@ -8,6 +8,7 @@
                 <th>status</th>
                 <th>code</th>
                 <th>type</th>
+                <th>validation</th>
             </tr>
             </thead>
             <tbody>
@@ -19,6 +20,7 @@
                     <td>{{ link.status }}</td>
                     <td>{{ link.statusCode }}</td>
                     <td>{{ link.type }}</td>
+                    <td>{{ link.validation|length }}</td>
                 </tr>
             {% endfor %}
             </tbody>

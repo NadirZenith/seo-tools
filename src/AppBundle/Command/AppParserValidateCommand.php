@@ -29,28 +29,32 @@ class AppParserValidateCommand extends ContainerAwareCommand
         /** @var EntityManager $manager */
         $manager = $this->getContainer()->get('doctrine')->getManager();
         $links = $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_PARSED, 'type' => Link::TYPE_INTERNAL], ['id' => 'ASC']);
+
+        $output->writeln(sprintf("Found %d waiting validation links", count($links)));
+
+
         define('VNU_PATH', '/data/software/vnu_html_validator/vnu.jar');
 
         $file = tmpfile();
         $file_meta = stream_get_meta_data($file);
-        $path = $file_meta['uri']; // eg: /tmp/phpFx0513a
+        $path = $file_meta['uri'];
+
         /** @var Link $link */
         foreach ($links as $k => $link) {
 
-            $output->writeln(sprintf('%d. Start validating link id %d(%s)', ++$k, $link->getId(), $link->getUrl()));
+            $output->write(sprintf('%d. Start validating link id %d(%s)', ++$k, $link->getId(), $link->getUrl()));
 
-            $result = file_put_contents($path, $link->getResponse());
+            file_put_contents($path, $link->getResponse());
 
             $command = sprintf('java -jar %s --format=json %s 2>&1', VNU_PATH, $path);
-//            $command = sprintf('java -jar %s %s 2>&1', VNU_PATH, $path);
 
+            $out = array();
             $r = exec($command, $out, $return);
             $link->setValidation($out);
 
 //            $parser->validate($link, []);
 
-//            $output->writeln(sprintf(" - status: %d", $link->getStatusCode()));
-//            $output->writeln(sprintf("Found %d new urls \n    %s \n", count($link->getChildrenUrls()), implode("\n    ", $link->getChildrenUrls())));
+            $output->writeln(sprintf(" - problems found: %d", count($link->getValidation())));
 
             $manager->persist($link);
 
@@ -59,7 +63,7 @@ class AppParserValidateCommand extends ContainerAwareCommand
             }
         }
 
-        $output->writeln(sprintf("Links needing validation: %d", count($links)));
+        $output->writeln(sprintf("Links validated: %d", count($links)));
     }
 
 }
