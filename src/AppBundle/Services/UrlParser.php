@@ -5,6 +5,7 @@ namespace AppBundle\Services;
 
 use AppBundle\Entity\Link;
 use Buzz\Browser;
+use Buzz\Client\Curl;
 use Buzz\Message\Response;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\DomCrawler\Crawler;
@@ -19,7 +20,10 @@ class UrlParser
     public function __construct(Browser $buzz, EntityManager $entityManager)
     {
         $this->browser = $buzz;
+        $this->browser->setClient(new Curl());
         $this->browser->getClient()->setTimeout(5000);
+        $this->browser->getClient()->setVerifyPeer(false);
+        $this->browser->getClient()->setIgnoreErrors(true);
 
         $this->entityManager = $entityManager;
     }
