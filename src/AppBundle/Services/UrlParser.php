@@ -28,13 +28,25 @@ class UrlParser
     {
 
         $options = $this->initOptions($options);
-//        $url_parsed = parse_url($link->getUrl());
-//d($url_parsed);
-        /** @var Response $response */
-        $response = $this->browser->get($link->getUrl());
+
+        try {
+            /** @var Response $response */
+            $response = $this->browser->get($link->getUrl());
+
+            if($link->isRoot()){
+                $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
+                if($robotsRsp->getStatusCode() === 200){
+                    $link->setRobots($robotsRsp->getContent());
+                }
+            };
+
+        } catch (\Exception $e) {
+            $link->setStatus(Link::STATUS_SKIPPED);
+            $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
+            return;
+        }
 
         $link->setCheckedAt(new \DateTime());
-        $link->setResponse($response->getContent());
         $link->setStatusCode($response->getStatusCode());
 
         // if it is an external link, don't need to crawl more urls
@@ -43,6 +55,8 @@ class UrlParser
             return;
         }
 
+        $link->setResponse($response->getContent());
+        $link->setResponseHeaders($response->getHeaders());
         $crawler = new Crawler($link->getResponse());
 
         // title
@@ -86,7 +100,7 @@ class UrlParser
                 $url = $link_node->getAttribute('href');
 
                 // ignore hash or empty url
-                if (empty($url) || substr($url, 0, 1) === '#') {
+                if (empty($url) || in_array(substr($url, 0, 1), ['#', '?'])) {
                     continue;
                 }
                 $raw_urls[] = [
@@ -103,7 +117,11 @@ class UrlParser
 
 //            dump($childLink->getUrl());
             // skip ignore patterns urls
-            if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredUrlsPatterns())) {
+            if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
+                continue;
+            }
+
+            if ($this->matchPatterns($childLink->getUrl(), $options->getIgnoredUrlPatterns())) {
                 continue;
             }
 

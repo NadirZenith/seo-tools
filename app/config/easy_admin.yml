@@ -45,12 +45,14 @@ easy_admin:
 
 
             list:
+#                max_results: 2000
                 actions: [ 'show' ]
                 fields:
                     - url
                     - status
                     - checkedAt
                     - statusCode
+                    - { property: 'validation', template: 'field_array.html.twig' }
                     - { property: 'rawUrls', template: 'raw_urls.html.twig' }
             show:
                 fields:
@@ -58,8 +60,11 @@ easy_admin:
                     - { property: 'url'}
                     - { property: 'status'}
                     - { property: 'statusCode'}
+                    - { property: 'statusMessage'}
                     - { property: 'parent'}
                     - { property: 'metas'}
+                    - { property: 'responseHeaders'}
+                    - { property: 'robots', template: 'html_content.html.twig' }
                     - { property: 'response', template: 'html_content.html.twig' }
                     - { property: 'rawUrls', template: 'raw_urls.html.twig' }
                     - { property: 'children', template: 'children_links.html.twig' }

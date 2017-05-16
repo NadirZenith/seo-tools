@@ -1,3 +1,4 @@
+{#{{ dump(value) }}#}
 {% if view == 'show' %}
     {% if value|length > 0 %}
         <ul>
@@ -11,5 +12,15 @@
         </div>
     {% endif %}
 {% else %}
-    {{ value|join(', ')|easyadmin_truncate }}
+    {% if value|length > 0 %}
+        <div title="{{ value|join("\n") }}">
+            {{ value|length }} errors
+        </div>
+    {% elseif value|length == 0%}
+        0 errors
+    {% else %}
+        <div class="empty collection-empty">
+            {{ include(entity_config.templates.label_empty) }}
+        </div>
+    {% endif %}
 {% endif %}

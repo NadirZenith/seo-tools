@@ -12,7 +12,10 @@ namespace AppBundle\Services;
 class UrlParserOptions
 {
 
-    private $options;
+    private $options = [
+        'ignored_url_patterns' => array(),
+        'ignored_path_patterns' => array()
+    ];
 
     /**
      * UrlParserOptions constructor.
@@ -20,13 +23,16 @@ class UrlParserOptions
      */
     public function __construct(array $options = array())
     {
-        $this->options = array_merge([
-            'ignore_patterns' => array()
-        ], $options);
+        $this->options = array_merge($this->options, $options);
     }
 
-    public function getIgnoredUrlsPatterns()
+    public function getIgnoredUrlPatterns()
     {
-        return is_array($this->options['ignore_patterns']) ? $this->options['ignore_patterns'] : [$this->options['ignore_patterns']];
+        return is_array($this->options['ignored_url_patterns']) ? $this->options['ignored_url_patterns'] : [$this->options['ignored_url_patterns']];
+    }
+
+    public function getIgnoredPathPatterns()
+    {
+        return is_array($this->options['ignored_path_patterns']) ? $this->options['ignored_path_patterns'] : [$this->options['ignored_path_patterns']];
     }
 }

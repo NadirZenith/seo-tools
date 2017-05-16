@@ -2,6 +2,7 @@
 
 namespace AppBundle\Admin;
 
+use AppBundle\Entity\Link;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use JavierEguiluz\Bundle\EasyAdminBundle\Controller\AdminController as BaseAdminController;
@@ -33,17 +34,34 @@ class DefaultController extends BaseAdminController
             $qb->setParameters([
                 'parent' => $parent
             ]);
+        } elseif ($root = $this->request->get('root')) {
+            $qb->where('l.root = :root');
+
+            $qb->setParameters([
+                'root' => $root
+            ]);
         } else {
             $qb->where('l.parent is NULL');
 
         }
 
         $qb->orderBy('l.id', $sortDirection);
+        $qb->setMaxResults(100000);
 
         return $qb;
 
         d($qb->getQuery()->getArrayResult());
         dd(func_get_args());
+    }
+
+    protected function findAll($entityClass, $page = 1, $maxPerPage = 15, $sortField = null, $sortDirection = null, $dqlFilter = null)
+    {
+        if ($entityClass === Link::class) {
+            $maxPerPage = 10000;
+
+        }
+//        dd($this->config);
+        return parent::findAll($entityClass, $page, $maxPerPage, $sortField, $sortDirection, $dqlFilter);
     }
 
 }

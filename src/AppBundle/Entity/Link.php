@@ -21,6 +21,7 @@ class Link
     const STATUS_PARSED = 'parsed';
     const STATUS_WAITING = 'waiting';
     const STATUS_SKIPPED = 'skipped';
+    const STATUS_ERROR = 'error';
 
     // link type
     const TYPE_EXTERNAL = 'external';
@@ -64,6 +65,13 @@ class Link
     /**
      * @var string
      *
+     * @ORM\Column(name="status_message", type="string", length=255, nullable=true)
+     */
+    private $statusMessage;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="type", type="string", length=255, nullable=true)
      */
     private $type = Link::TYPE_INTERNAL;
@@ -81,6 +89,20 @@ class Link
      * @ORM\Column(name="response", type="text", nullable=true)
      */
     private $response;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="robots", type="text", nullable=true)
+     */
+    private $robots;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="response_headers", type="array", nullable=true)
+     */
+    private $responseHeaders;
 
     /**
      * @var array
@@ -458,6 +480,61 @@ class Link
     {
         $this->validation = $validation;
     }
+
+    /**
+     * @return string
+     */
+    public function getStatusMessage()
+    {
+        return $this->statusMessage;
+    }
+
+    /**
+     * @param string $statusMessage
+     */
+    public function setStatusMessage($statusMessage)
+    {
+        $this->statusMessage = $statusMessage;
+    }
+
+    /**
+     * @return array
+     */
+    public function getResponseHeaders()
+    {
+        return $this->responseHeaders;
+    }
+
+    /**
+     * @param array $responseHeaders
+     */
+    public function setResponseHeaders($responseHeaders)
+    {
+        $this->responseHeaders = $responseHeaders;
+    }
+
+
+    public function isRoot()
+    {
+        return $this->getId() === $this->getRoot()->getId();
+    }
+
+    /**
+     * @return string
+     */
+    public function getRobots()
+    {
+        return $this->robots;
+    }
+
+    /**
+     * @param string $robots
+     */
+    public function setRobots($robots)
+    {
+        $this->robots = $robots;
+    }
+
 
 //    public function containsHierarchyUrl($url, $debug = false)
 //    {

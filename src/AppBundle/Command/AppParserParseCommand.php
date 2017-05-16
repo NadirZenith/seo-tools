@@ -6,7 +6,6 @@ use AppBundle\Entity\Link;
 use AppBundle\Services\UrlParser;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,7 +39,24 @@ class AppParserParseCommand extends ContainerAwareCommand
 
             $output->write(sprintf('%d/%d -> Start parsing url %s', ++$k, count($links), $link->getUrl()));
             $parser->parse($link, [
-                'ignore_patterns' => '/^\/\_/'
+                'ignored_url_patterns' => [
+                    //facebook
+                    '/^http:\/\/www\.facebook\.com\/sharer\.php/',
+                    '/^http(s)?:\/\/www\.facebook\.com/',
+                    //twitter
+                    '/^https:\/\/twitter\.com\/intent\/tweet/',
+                    '/^http(s)?:\/\/(www\.)?twitter\.com/',
+                    //google
+                    '/^https:\/\/plus\.google\.com/',
+                    '/^http:\/\/www\.youtube\.com/',
+                    //instagram
+                    '/^http:\/\/instagram\.com/',
+                    //pinterest
+                    '/^http:\/\/(www\.)?pinterest\.com/',
+                    // special case
+                    '/^https:\/\/www\.schweppes\.es/',
+                ],
+                'ignored_path_patterns' => '/^\/\_/'
             ]);
 
             $output->writeln(sprintf(" - status: %d", $link->getStatusCode()));
@@ -48,14 +64,15 @@ class AppParserParseCommand extends ContainerAwareCommand
 
             $manager->persist($link);
 
-            if (!$input->getOption('dry-run')) {
-                $manager->flush();
+            try {
+                if (!$input->getOption('dry-run')) {
+                    $manager->flush();
+                }
+            } catch (\Exception $e) {
+                $this->writeln($e->getMessage());
+                break;
             }
         }
-
-
-//        $argument = $input->getArgument('argument');
-//
 
         $output->writeln(sprintf("Finished parsing %d links", count($links)));
     }
