@@ -26,6 +26,7 @@ class Link
     // link type
     const TYPE_EXTERNAL = 'external';
     const TYPE_INTERNAL = 'internal';
+    const TYPE_SITEMAP = 'sitemap';
 
     /**
      * @var int
@@ -46,7 +47,7 @@ class Link
     /**
      * @var array
      */
-    private $parsed_url;
+    private $parsedUrl;
 
     /**
      * @var \DateTime
@@ -107,6 +108,13 @@ class Link
     /**
      * @var array
      *
+     * @ORM\Column(name="redirects", type="array", nullable=true)
+     */
+    private $redirects;
+
+    /**
+     * @var array
+     *
      * @ORM\Column(name="metas", type="array", nullable=true)
      */
     private $metas;
@@ -147,10 +155,11 @@ class Link
     private $children;
 
 
-    public function __construct($url = null)
+    public function __construct($url = null, $type = Link::TYPE_INTERNAL)
     {
         $this->children = new ArrayCollection();
         $this->setUrl($url);
+        $this->setType($type);
 
         $this->setRoot($this);
     }
@@ -158,9 +167,38 @@ class Link
     /**
      * @ORM\PostLoad
      */
-    public function parseUrl()
+    public function postLoad()
     {
-        $this->parsed_url = parse_url($this->url);
+        $this->parseUrl();
+    }
+
+    /**
+     * @return array
+     */
+    public function getRedirects()
+    {
+        return $this->redirects;
+    }
+
+    /**
+     * @param array $redirects
+     */
+    public function setRedirects($redirects)
+    {
+        $this->redirects = $redirects;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRedirects()
+    {
+        return !empty($this->redirects);
+    }
+
+    private function parseUrl()
+    {
+        $this->parsedUrl = parse_url($this->url);
     }
 
     public function __toString()
@@ -187,7 +225,7 @@ class Link
      */
     public function setUrl($url)
     {
-        $this->url = $url;
+        $this->url = trim($url);
         $this->parseUrl();
 
         return $this;
@@ -343,18 +381,17 @@ class Link
 
     public function getScheme()
     {
-        return isset($this->parsed_url['scheme']) ? $this->parsed_url['scheme'] : false;
+        return isset($this->parsedUrl['scheme']) ? $this->parsedUrl['scheme'] : false;
     }
 
     public function getHost()
     {
-        return isset($this->parsed_url['host']) ? $this->parsed_url['host'] : false;
+        return isset($this->parsedUrl['host']) ? $this->parsedUrl['host'] : false;
     }
 
     public function getPath()
     {
-        return isset($this->parsed_url['path']) ? $this->parsed_url['path'] : false;
-
+        return isset($this->parsedUrl['path']) ? $this->parsedUrl['path'] : false;
     }
 
     /**
@@ -445,7 +482,7 @@ class Link
         $urls = [];
 
         if ($link) {
-            foreach ($link->getChildren()->toArray() as $k => $link) {
+            foreach ($link->getChildren()->toArray() as $link) {
                 array_push($urls, $link->getUrl());
             }
         }
@@ -462,11 +499,10 @@ class Link
     {
 
         return $link->getChildren()->exists(
-            function ($i, $link) use ($url) {
+            function ($idx, $link) use ($url) {
                 return $link->getUrl() === $url;
             }
         );
-
     }
 
     /**
@@ -538,24 +574,4 @@ class Link
     {
         $this->robots = $robots;
     }
-
-
-    //    public function containsHierarchyUrl($url, $debug = false)
-    //    {
-    ////        d($this->getId());
-    //        $link = $this->getRoot();
-    //        $contains = $this->containsLinkChildrenUrl($link);
-    //
-    //        d($contains);
-    //        foreach ($link->getChildren()->getValues() as $clink) {
-    //
-    //            $contains = $this->containsLinkChildrenUrl($clink, $url);
-    //
-    //        }
-    //        dd($contains);
-    //        return false;
-    //    }
-
-
 }
-

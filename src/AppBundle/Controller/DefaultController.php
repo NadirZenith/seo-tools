@@ -20,74 +20,14 @@ class DefaultController extends Controller
 {
     /**
      * @Route("/index/{slug}", name="index_test", defaults={"slug": false})
+     * @param null $slug
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexTestAction($slug, Request $request)
+    public function indexTestAction($slug = null)
     {
         // replace this example code with whatever you need
-        return $this->render('default/index_test.html.twig', []);
-    }
 
-    /**
-     * @Route("/test", name="test")
-     */
-    public function testAction(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        /**
- * @var Link $link 
-*/
-        $rootLink = $em->getRepository(Link::class)->find(1); // http://smoketest.dev/index
-        //        /** @var Link $link1 */
-        //        $link1 = $em->getRepository(Link::class)->find(3); // http://smoketest.dev/fail
-        //        /** @var Link $link2 */
-        //        $link2 = $em->getRepository(Link::class)->find(4); // http://smoketest.dev/some/file.pdf
-        //
-        //        $new_url1 = 'http://www.google.com';
-        //        $new_url2 = 'http://www.google.es';
-        //
-        //        $nlink1 = new Link($new_url1);
-        //        $nlink2 = new Link($new_url1);
-        //        $nlink3 = new Link($new_url2);
-        //
-        //        $link1->addChildren($nlink1);
-        //
-        //        d($link1);
-        //        dd($nlink1);
-        $url = 'http://smoketest.dev/discover';
-        $childLink = new Link($url);
-
-        $result = $em->createQueryBuilder()
-            ->select('l')
-            ->from(Link::class, 'l')
-            ->where('l.url = :url')
-            ->andWhere('l.root = :root')
-            ->setParameters(
-                [
-                'url' => $childLink->getUrl(),
-                'root' => $rootLink->getRoot()
-                ]
-            )
-            ->getQuery()
-            ->getResult();
-        dump($childLink->getUrl() . ' : ' . $rootLink->getId() . ' -> ' . count($result));
-
-        dd($result);
-
-
-
-
-        $r = $link1->addChildren($nlink1);
-
-        $r = $nlink1->addChildren($nlink3);
-
-
-        $r = $link2->containsHierarchyUrl($new_url1, true);
-        //        $r = $link2->containsHierarchyUrl($new_url2, true);
-        dd($r);
-
-        d([$link1, $link2]);
-        dd([$nlink1, $nlink2]);
+        return $this->render('default/index_test.html.twig', ['slug' => $slug]);
     }
 
     /**
@@ -95,23 +35,23 @@ class DefaultController extends Controller
      */
     public function smokeTestAction(Request $request)
     {
-        $test_urls = array(
+        $testUrls = array(
             'https://www.schweppes.es/tonica/nuestras-tonicas/classic/soda',
             'https://www.schweppes.es/cocteleria/jigger-cuchara-imperial-y-abridor-como-se-usan-correctamente'
         );
 
-        $test_urls = array();
+        $testUrls = array();
 
         $form = $this->createForm(
             SimpleRunType::class, null, array(
-            'test_data' => implode("\n", $test_urls)
+                'test_data' => implode("\n", $testUrls)
             )
         );
 
         $form->handleRequest($request);
 
         $status = array();
-        $parsed_urls = array();
+        $parsedUrls = array();
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
             $data = $form->getData();
@@ -121,31 +61,29 @@ class DefaultController extends Controller
             //            $br = new \Buzz\Message\Request();
             //            $br->s
             /**
- * @var Browser $client 
-*/
+             * @var Browser $client
+             */
             $browser = $this->get('buzz');
             $browser->getClient()->setTimeout(5000);
             foreach ($urls as $url) {
                 $url = trim($url);
                 /**
- * @var Response $response 
-*/
+                 * @var Response $response
+                 */
                 $response = $browser->get($url);
                 $status[$response->getStatusCode()][] = $url;
 
-                $parsed_urls[] = $url;
+                $parsedUrls[] = $url;
                 usleep(500);
             }
-
-
         }
 
         // replace this example code with whatever you need
         return $this->render(
             'default/index.html.twig', [
-            'form' => $form->createView(),
-            'status' => $status,
-            'urls' => $parsed_urls
+                'form' => $form->createView(),
+                'status' => $status,
+                'urls' => $parsedUrls
             ]
         );
     }
@@ -155,34 +93,32 @@ class DefaultController extends Controller
      */
     public function discoverAction(Request $request)
     {
-
         $form = $this->createFormBuilder(new Link(), array())
             ->add('url', UrlType::class)
             ->add(
                 'submit', SubmitType::class, array(
-                'label' => 'form.label.submit'
+                    'label' => 'form.label.submit'
                 )
             )
             ->getForm();
-
         $form->handleRequest($request);
 
-        $file_path = false;
+        $filePath = false;
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
             /**
- * @var Link $link 
-*/
+             * @var Link $link
+             */
             $link = $form->getData();
 
             /**
- * @var Browser $client 
-*/
+             * @var Browser $client
+             */
             $browser = $this->get('buzz');
             $browser->getClient()->setTimeout(5000);
             /**
- * @var Response $response 
-*/
+             * @var Response $response
+             */
             $response = $browser->get($link->getUrl());
 
             $link->setResponse($response->getContent());
@@ -199,22 +135,6 @@ class DefaultController extends Controller
             $sbrowser->start();
 
             $sbrowser->resizeWindow(1280, 1024);
-            //            $sbrowser->executeScript('
-            //                  document.getElementsByTagName("body")[0].style.overflow = "hidden";
-            //                  document.getElementsByTagName("body")[0].style.height = "1024px";
-            //                  document.getElementsByTagName("body")[0].style.maxHeight = "1024px";
-            //                  document.getElementsByTagName("html")[0].style.overflow = "hidden";
-            //                  document.getElementsByTagName("html")[0].style.height = "1024px";
-            //                  document.getElementsByTagName("html")[0].style.maxHeight = "1024px";
-            //            ');
-            //            $sbrowser->maximizeWindow();
-
-            //            $sdriver->resizeWindow(1280, 1024, $sdriver->getWindowName());
-            //            $sbrowser->resizeWindow(1280, 1024);
-
-
-            //            $sbrowser->visit($link->getUrl());
-            //            $sbrowser->wait(3000);
 
             $cookieArray = array(
                 'domain' => '.schweppes.dev',
@@ -229,15 +149,13 @@ class DefaultController extends Controller
             $sbrowser->visit($link->getUrl());
             $sbrowser->wait(3000);
 
-
-            $page = $sbrowser->getPage();
-
+            $sbrowser->getPage();
 
             $path = $this->getParameter('kernel.root_dir') . '/../web/uploads/';
             $file = 'screenshot.png';
-            $file_path = $path . $file;
+            $filePath = $path . $file;
 
-            file_put_contents($file_path, $sdriver->getScreenshot());
+            file_put_contents($filePath, $sdriver->getScreenshot());
 
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($link);
@@ -247,9 +165,9 @@ class DefaultController extends Controller
         // replace this example code with whatever you need
         return $this->render(
             'default/discover.html.twig', [
-            'form' => $form->createView(),
-            'link' => $form->getData(),
-            'screenshot' => $file_path
+                'form' => $form->createView(),
+                'link' => $form->getData(),
+                'screenshot' => $filePath
             ]
         );
     }
@@ -264,19 +182,19 @@ class DefaultController extends Controller
             ->add('url', UrlType::class)
             ->add(
                 'submit', SubmitType::class, array(
-                'label' => 'form.label.submit'
+                    'label' => 'form.label.submit'
                 )
             )
             ->getForm();
 
         $form->handleRequest($request);
 
-        $file_path = false;
+        $filePath = false;
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
             /**
- * @var Link $link 
-*/
+             * @var Link $link
+             */
             $link = $form->getData();
 
             $driver = 'firefox';
@@ -289,21 +207,21 @@ class DefaultController extends Controller
             $sbrowser->resizeWindow(1280, 1024);
 
             switch ($driver) {
-            case 'phantomjs';
-                $cookieArray = array(
-                'domain' => '.schweppes.dev',
-                'path' => '/',
-                'name' => 'allowAdultContent',
-                'value' => '1',
-                'secure' => false, // thanks, chibimagic!
-                );
-                $sdriver->getWebDriverSession()->setCookie($cookieArray);
-                break;
-            case 'chrome':
-                $sbrowser->visit($link->getUrl());
-                $sbrowser->wait(1000);
-                $sbrowser->setCookie('allowAdultContent', '1'); //only works? if we fetch an url first(can only set cookies for the current domain)
-                break;
+                case 'phantomjs':
+                    $cookieArray = array(
+                        'domain' => '.schweppes.dev',
+                        'path' => '/',
+                        'name' => 'allowAdultContent',
+                        'value' => '1',
+                        'secure' => false, // thanks, chibimagic!
+                    );
+                    $sdriver->getWebDriverSession()->setCookie($cookieArray);
+                    break;
+                case 'chrome':
+                    $sbrowser->visit($link->getUrl());
+                    $sbrowser->wait(1000);
+                    $sbrowser->setCookie('allowAdultContent', '1'); //only works? if we fetch an url first(can only set cookies for the current domain)
+                    break;
             }
 
             $sbrowser->visit($link->getUrl());
@@ -332,9 +250,9 @@ class DefaultController extends Controller
         // replace this example code with whatever you need
         return $this->render(
             'default/discover.html.twig', [
-            'form' => $form->createView(),
-            'link' => $form->getData(),
-            'screenshot' => $file_path
+                'form' => $form->createView(),
+                'link' => $form->getData(),
+                'screenshot' => $filePath
             ]
         );
     }
@@ -349,7 +267,7 @@ class DefaultController extends Controller
             ->add('url', UrlType::class)
             ->add(
                 'submit', SubmitType::class, array(
-                'label' => 'form.label.submit'
+                    'label' => 'form.label.submit'
                 )
             )
             ->getForm();
@@ -359,8 +277,8 @@ class DefaultController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
             /**
- * @var Link $link 
-*/
+             * @var Link $link
+             */
             $link = $form->getData();
 
             $manager = $this->getDoctrine()->getManager();
@@ -371,8 +289,8 @@ class DefaultController extends Controller
         // replace this example code with whatever you need
         return $this->render(
             'default/discover.html.twig', [
-            'form' => $form->createView(),
-            'link' => $form->getData(),
+                'form' => $form->createView(),
+                'link' => $form->getData(),
             ]
         );
     }
@@ -380,24 +298,25 @@ class DefaultController extends Controller
     /**
      * @Route("/seo-report-run", name="seo_report_run")
      */
-    public function seoReportRunAction(Request $request)
+    public function seoReportRunAction()
     {
 
         /**
- * @var UrlParser $parser 
-*/
+         * @var UrlParser $parser
+         */
         $parser = $this->get('app.url_parser');
         $manager = $this->getDoctrine()->getManager();
         $links = $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING]);
 
         /**
- * @var Link $link 
-*/
+         * @var Link $link
+         */
         foreach ($links as $k => $link) {
             d(sprintf('%d. Start parsing url %s', ++$k, $link->getUrl()));
             $parser->parse(
                 $link, [
-                'ignore_patterns' => '/^\/\_/'
+
+                    'ignore_patterns' => '/^\/\_/'
                 ]
             );
 
@@ -406,10 +325,7 @@ class DefaultController extends Controller
 
             $manager->persist($link);
             $manager->flush();
-
-
         }
         dd($links);
-        die;
     }
 }

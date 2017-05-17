@@ -8,7 +8,6 @@
 
 namespace AppBundle\Services;
 
-
 class UrlParserOptions
 {
 

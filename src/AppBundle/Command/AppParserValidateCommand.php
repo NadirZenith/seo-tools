@@ -24,13 +24,13 @@ class AppParserValidateCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
- * @var UrlParser $parser 
-*/
-        $parser = $this->getContainer()->get('app.url_parser');
+         * @var UrlParser $parser
+         */
+//        $parser = $this->getContainer()->get('app.url_parser');
 
         /**
- * @var EntityManager $manager 
-*/
+         * @var EntityManager $manager
+         */
         $manager = $this->getContainer()->get('doctrine')->getManager();
         $links = $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_PARSED, 'type' => Link::TYPE_INTERNAL], ['id' => 'ASC']);
 
@@ -40,14 +40,13 @@ class AppParserValidateCommand extends ContainerAwareCommand
         define('VNU_PATH', '/data/software/vnu_html_validator/vnu.jar');
 
         $file = tmpfile();
-        $file_meta = stream_get_meta_data($file);
-        $path = $file_meta['uri'];
+        $fileMeta = stream_get_meta_data($file);
+        $path = $fileMeta['uri'];
 
         /**
- * @var Link $link 
-*/
+         * @var Link $link
+         */
         foreach ($links as $k => $link) {
-
             $output->write(sprintf('%d. Start validating link id %d(%s)', ++$k, $link->getId(), $link->getUrl()));
 
             file_put_contents($path, $link->getResponse());
@@ -55,7 +54,7 @@ class AppParserValidateCommand extends ContainerAwareCommand
             $command = sprintf('java -jar %s --format=json %s 2>&1', VNU_PATH, $path);
 
             $out = array();
-            $r = exec($command, $out, $return);
+            exec($command, $out);
             $link->setValidation($out);
 
             //            $parser->validate($link, []);
@@ -71,5 +70,4 @@ class AppParserValidateCommand extends ContainerAwareCommand
 
         $output->writeln(sprintf("Links validated: %d", count($links)));
     }
-
 }

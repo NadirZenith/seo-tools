@@ -2,7 +2,6 @@
 
 namespace AppBundle\Services;
 
-
 use AppBundle\Entity\Link;
 use Buzz\Browser;
 use Buzz\Client\Curl;
@@ -35,20 +34,70 @@ class UrlParser
 
         try {
             /**
- * @var Response $response 
-*/
+             * @var Response $response
+             */
             $response = $this->browser->get($link->getUrl());
 
-            if($link->isRoot()) {
-                $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
-                if($robotsRsp->getStatusCode() === 200) {
-                    $link->setRobots($robotsRsp->getContent());
-                }
-            };
+            // if is root link, query for sitemap.xml
+            if ($link->isRoot()) {
+                $sitemapLink = new Link(sprintf("%s://%s/sitemap.xml", $link->getScheme(), $link->getHost()), Link::TYPE_SITEMAP);
 
+                /**
+                 * @var Response $robotsRsp
+                 */
+                $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
+
+                if ($robotsRsp->getStatusCode() === 200) {
+                    // robots.txt exist
+                    $link->setRobots($robotsRsp->getContent());
+
+                    preg_match_all('/Sitemap2: ([^\s]+)/', $link->getRobots(), $match);
+                    if (isset($match[1], $match[1][0]) && !empty($match[1][0])) {
+                        // Sitemap url found on robots.txt, use it to get sitemap url
+                        $sitemapLink->setUrl($match[1][0]);
+
+                        // check if child url is relative and has a path (ex: is not a #hash url)
+                        if (!$sitemapLink->getHost() && $sitemapLink->getPath()) {
+                            // child link url is relative, prepend url scheme and host
+
+                            $absoluteUrl = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $sitemapLink->getPath());
+                            $sitemapLink->setUrl($absoluteUrl);
+                        }
+                    }
+                }
+                d('site map url ' . $sitemapLink->getUrl());
+                $sitemapRsp = $this->browser->get($sitemapLink->getUrl());
+                $sitemapLink->setResponse($sitemapRsp->getContent());
+
+                $crawler = new Crawler($sitemapLink->getResponse());
+                $crawler = $crawler->filterXPath('//default:sitemapindex/sitemap/loc');
+                dd($crawler->html());
+                $crawler = $crawler->filter('default|sitemapindex sitemap|group yt|aspectRatio');
+
+                foreach ($crawler as $domElement) {
+                    d($domElement->nodeName);
+                    d($domElement->value);
+                }
+
+                dd($crawler->getNode(0)->getElementsByTagName('loc')->item(0)->textContent);
+
+//                d($crawler->html());
+//                dd($crawler->filter('sitemap')->count());
+                $pattern = '(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
+                preg_match_all("#$pattern#i", $sitemapLink->getResponse(), $match);
+                if (isset($match[1]) && !empty($match[1])) {
+                    // sitemap contains urls
+//                    $matched_urls = $match[1];
+
+
+//                    dd($urls);
+                }
+                dd('sitemap no urls');
+            };
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
+            dd('Debug exception: ' . $e->getMessage());
             return;
         }
 
@@ -66,15 +115,15 @@ class UrlParser
         $crawler = new Crawler($link->getResponse());
 
         // title
-        $title_node = $crawler->filter('head > title');
-        if ($title_node->count()) {
-            $link->setMeta('title', $title_node->text());
+        $node = $crawler->filter('head > title');
+        if ($node->count()) {
+            $link->setMeta('title', $node->text());
         }
 
         // description
-        $meta_description_node = $crawler->filterXPath('//meta[@name="description"]');
-        if ($meta_description_node->count()) {
-            $link->setMeta('description', $meta_description_node->attr('content'));
+        $node = $crawler->filterXPath('//meta[@name="description"]');
+        if ($node->count()) {
+            $link->setMeta('description', $node->attr('content'));
         }
 
         // h1
@@ -99,29 +148,34 @@ class UrlParser
             }
         }
 
-        $links_node = $crawler->filter('a');
-        $raw_urls = array();
-        if ($links_node->count()) {
-            foreach ($links_node as $link_node) {
-                $url = $link_node->getAttribute('href');
+        // link nodes
+        $nodes = $crawler->filter('a');
+        $rawUrls = array();
+        if ($nodes->count()) {
+            foreach ($nodes as $node) {
+                $url = $node->getAttribute('href');
 
                 // ignore hash or empty url
                 if (empty($url) || in_array(substr($url, 0, 1), ['#', '?'])) {
                     continue;
                 }
-                $raw_urls[] = [
+                $rawUrls[] = [
                     'url' => $url,
-                    'title' => $link_node->getAttribute('title'),
-                    'text' => $link_node->textContent
+                    'title' => $node->getAttribute('title'),
+                    'text' => $node->textContent
                 ];
             }
         }
-        $link->setRawUrls($raw_urls);
+        $link->setRawUrls($rawUrls);
 
-        foreach ($raw_urls as $url) {
+        foreach ($rawUrls as $url) {
             $childLink = new Link($url['url']);
 
-            //            dump($childLink->getUrl());
+            // mailto urls
+            if (in_array($childLink->getScheme(), array('mailto'))) {
+                continue;
+            }
+
             // skip ignore patterns urls
             if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
                 continue;
@@ -131,18 +185,13 @@ class UrlParser
                 continue;
             }
 
-            // mailto urls
-            if (in_array($childLink->getScheme(), array('mailto'))) {
-                continue;
-            }
-
             // check if child url is relative and has a path (ex: is not a #hash url)
             if (!$childLink->getHost() && $childLink->getPath()) {
                 // child link url is relative, prepend link scheme and host
                 $childLink->setType(Link::TYPE_INTERNAL);
 
-                $absolute_url = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $childLink->getPath());
-                $childLink->setUrl($absolute_url);
+                $absoluteUrl = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $childLink->getPath());
+                $childLink->setUrl($absoluteUrl);
             }
 
             if ($link->getHost() !== $childLink->getHost()) {
@@ -155,7 +204,6 @@ class UrlParser
         }
 
         $link->setStatus(Link::STATUS_PARSED);
-
     }
 
     /**
@@ -195,8 +243,8 @@ class UrlParser
             ->andWhere('l.root = :root')
             ->setParameters(
                 [
-                'url' => $childLink->getUrl(),
-                'root' => $link->getRoot()
+                    'url' => $childLink->getUrl(),
+                    'root' => $link->getRoot()
                 ]
             )
             ->getQuery()
@@ -204,6 +252,4 @@ class UrlParser
 
         return empty($result) ? false : true;
     }
-
-
 }

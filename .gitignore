@@ -1,5 +1,7 @@
 /app/config/parameters.yml
-/build/
+/build/*
+!/build/*.dist
+!/build/*.sh
 /phpunit.xml
 /var/*
 !/var/cache
@@ -15,5 +17,11 @@
 /vendor/
 /web/bundles/
 /web/uploads/
-/audit/
+/web/app_dev.php
+/web/.htaccess
 /.idea/
+
+#exclude BIN binaries
+/bin/*
+!/bin/console
+!/bin/symfony_requirements

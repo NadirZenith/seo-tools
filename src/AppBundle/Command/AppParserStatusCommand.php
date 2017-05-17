@@ -31,5 +31,4 @@ class AppParserStatusCommand extends ContainerAwareCommand
         $output->writeln(sprintf("Waiting parser: %d links", count($waiting)));
         $output->writeln(sprintf("Already parsed: %d links", count($parsed)));
     }
-
 }
