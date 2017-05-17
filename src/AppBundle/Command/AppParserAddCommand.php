@@ -32,5 +32,4 @@ class AppParserAddCommand extends ContainerAwareCommand
 
         $output->writeln(sprintf("New url added with id: %d(%s)", $link->getId(), $link->getUrl()));
     }
-
 }

@@ -14,35 +14,44 @@ class DefaultController extends BaseAdminController
     {
         dd('here');
         // redirect to the 'list' view of the given entity
-        return $this->redirectToRoute('easyadmin', array(
-            'action' => 'list',
-            'entity' => $this->request->query->get('entity'),
-        ));
+        return $this->redirectToRoute(
+            'easyadmin', array(
+                'action' => 'list',
+                'entity' => $this->request->query->get('entity'),
+            )
+        );
 
-        return $this->render('AppBundle:Admin:crawl.html.twig', array(// ...
-        ));
+        return $this->render(
+            'AppBundle:Admin:crawl.html.twig', array(// ...
+            )
+        );
     }
 
     protected function createLinkListQueryBuilder($entityClass, $sortDirection, $sortField, $dqlFilter)
     {
-        /** @var QueryBuilder $qb */
+        /**
+         * @var QueryBuilder $qb
+         */
         $qb = $this->getDoctrine()->getRepository($entityClass)->createQueryBuilder('l');
 
         if ($parent = $this->request->get('parent')) {
             $qb->where('l.parent = :parent');
 
-            $qb->setParameters([
-                'parent' => $parent
-            ]);
+            $qb->setParameters(
+                [
+                    'parent' => $parent
+                ]
+            );
         } elseif ($root = $this->request->get('root')) {
             $qb->where('l.root = :root');
 
-            $qb->setParameters([
-                'root' => $root
-            ]);
+            $qb->setParameters(
+                [
+                    'root' => $root
+                ]
+            );
         } else {
             $qb->where('l.parent is NULL');
-
         }
 
         $qb->orderBy('l.id', $sortDirection);
@@ -58,10 +67,8 @@ class DefaultController extends BaseAdminController
     {
         if ($entityClass === Link::class) {
             $maxPerPage = 10000;
-
         }
-//        dd($this->config);
+        //        dd($this->config);
         return parent::findAll($entityClass, $page, $maxPerPage, $sortField, $sortDirection, $dqlFilter);
     }
-
 }

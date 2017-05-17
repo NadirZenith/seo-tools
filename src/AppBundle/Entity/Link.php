@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Link
  *
- * @ORM\Table(name="link", uniqueConstraints={ @ORM\UniqueConstraint(name="single_url_hierarchy", columns={"url", "root_id"})})
+ * @ORM\Table(name="link",                                            uniqueConstraints={ @ORM\UniqueConstraint(name="single_url_hierarchy", columns={"url", "root_id"})})
  * ORM\Table(name="link")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
  * @ORM\HasLifecycleCallbacks()
@@ -272,7 +272,7 @@ class Link
     public function setResponse($response)
     {
         $this->response = $response;
-//        $this->setCheckedAt(new \DateTime());
+        //        $this->setCheckedAt(new \DateTime());
     }
 
     /**
@@ -309,8 +309,9 @@ class Link
 
     /**
      *  Set meta by key
-     * @param $key
-     * @param $value
+     *
+     * @param  $key
+     * @param  $value
      * @return $this
      */
     public function setMeta($key, $value)
@@ -322,7 +323,8 @@ class Link
 
     /**
      * Get meta by key
-     * @param $key
+     *
+     * @param  $key
      * @return bool|mixed
      */
     public function getMeta($key)
@@ -359,7 +361,6 @@ class Link
     public function getPath()
     {
         return isset($this->parsed_url['path']) ? $this->parsed_url['path'] : false;
-
     }
 
     /**
@@ -466,10 +467,11 @@ class Link
     public function containsLinkChildrenUrl(Link $link, $url = null)
     {
 
-        return $link->getChildren()->exists(function ($i, $link) use ($url) {
-            return $link->getUrl() === $url;
-        });
-
+        return $link->getChildren()->exists(
+            function ($i, $link) use ($url) {
+                return $link->getUrl() === $url;
+            }
+        );
     }
 
     /**
@@ -543,22 +545,19 @@ class Link
     }
 
 
-//    public function containsHierarchyUrl($url, $debug = false)
-//    {
-////        d($this->getId());
-//        $link = $this->getRoot();
-//        $contains = $this->containsLinkChildrenUrl($link);
-//
-//        d($contains);
-//        foreach ($link->getChildren()->getValues() as $clink) {
-//
-//            $contains = $this->containsLinkChildrenUrl($clink, $url);
-//
-//        }
-//        dd($contains);
-//        return false;
-//    }
-
-
+    //    public function containsHierarchyUrl($url, $debug = false)
+    //    {
+    ////        d($this->getId());
+    //        $link = $this->getRoot();
+    //        $contains = $this->containsLinkChildrenUrl($link);
+    //
+    //        d($contains);
+    //        foreach ($link->getChildren()->getValues() as $clink) {
+    //
+    //            $contains = $this->containsLinkChildrenUrl($clink, $url);
+    //
+    //        }
+    //        dd($contains);
+    //        return false;
+    //    }
 }
-

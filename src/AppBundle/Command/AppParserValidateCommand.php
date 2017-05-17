@@ -23,10 +23,14 @@ class AppParserValidateCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var UrlParser $parser */
+        /**
+         * @var UrlParser $parser
+         */
         $parser = $this->getContainer()->get('app.url_parser');
 
-        /** @var EntityManager $manager */
+        /**
+         * @var EntityManager $manager
+         */
         $manager = $this->getContainer()->get('doctrine')->getManager();
         $links = $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_PARSED, 'type' => Link::TYPE_INTERNAL], ['id' => 'ASC']);
 
@@ -39,9 +43,10 @@ class AppParserValidateCommand extends ContainerAwareCommand
         $file_meta = stream_get_meta_data($file);
         $path = $file_meta['uri'];
 
-        /** @var Link $link */
+        /**
+         * @var Link $link
+         */
         foreach ($links as $k => $link) {
-
             $output->write(sprintf('%d. Start validating link id %d(%s)', ++$k, $link->getId(), $link->getUrl()));
 
             file_put_contents($path, $link->getResponse());
@@ -52,7 +57,7 @@ class AppParserValidateCommand extends ContainerAwareCommand
             $r = exec($command, $out, $return);
             $link->setValidation($out);
 
-//            $parser->validate($link, []);
+            //            $parser->validate($link, []);
 
             $output->writeln(sprintf(" - problems found: %d", count($link->getValidation())));
 
@@ -65,5 +70,4 @@ class AppParserValidateCommand extends ContainerAwareCommand
 
         $output->writeln(sprintf("Links validated: %d", count($links)));
     }
-
 }

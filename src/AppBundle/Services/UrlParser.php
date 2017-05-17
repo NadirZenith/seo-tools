@@ -2,7 +2,6 @@
 
 namespace AppBundle\Services;
 
-
 use AppBundle\Entity\Link;
 use Buzz\Browser;
 use Buzz\Client\Curl;
@@ -34,14 +33,18 @@ class UrlParser
         $options = $this->initOptions($options);
 
         try {
-            /** @var Response $response */
+            /**
+             * @var Response $response
+             */
             $response = $this->browser->get($link->getUrl());
 
             // if is root link, query for sitemap.xml
             if ($link->isRoot()) {
                 $sitemapLink = new Link(sprintf("%s://%s/sitemap.xml", $link->getScheme(), $link->getHost()), Link::TYPE_SITEMAP);
 
-                /** @var Response $robotsRsp */
+                /**
+                 * @var Response $robotsRsp
+                 */
                 $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
 
                 if ($robotsRsp->getStatusCode() === 200) {
@@ -75,7 +78,7 @@ class UrlParser
                     d($domElement->nodeName);
                     d($domElement->value);
                 }
-die;
+                die;
                 dd($crawler->getNode(0)->getElementsByTagName('loc')->item(0)->textContent);
 
                 d($crawler->html());
@@ -90,9 +93,7 @@ die;
                     dd($urls);
                 }
                 dd('sitemap no urls');
-
             };
-
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
@@ -158,9 +159,9 @@ die;
                     continue;
                 }
                 $raw_urls[] = [
-                    'url'   => $url,
+                    'url' => $url,
                     'title' => $link_node->getAttribute('title'),
-                    'text'  => $link_node->textContent
+                    'text' => $link_node->textContent
                 ];
             }
         }
@@ -174,7 +175,7 @@ die;
             if (in_array($childLink->getScheme(), array('mailto'))) {
                 continue;
             }
-//            dump($childLink->getUrl());
+            //            dump($childLink->getUrl());
             // skip ignore patterns urls
             if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
                 continue;
@@ -203,7 +204,6 @@ die;
         }
 
         $link->setStatus(Link::STATUS_PARSED);
-
     }
 
     /**
@@ -241,15 +241,15 @@ die;
             ->from(Link::class, 'l')
             ->where('l.url = :url')
             ->andWhere('l.root = :root')
-            ->setParameters([
-                'url'  => $childLink->getUrl(),
-                'root' => $link->getRoot()
-            ])
+            ->setParameters(
+                [
+                    'url' => $childLink->getUrl(),
+                    'root' => $link->getRoot()
+                ]
+            )
             ->getQuery()
             ->getResult();
 
         return empty($result) ? false : true;
     }
-
-
 }

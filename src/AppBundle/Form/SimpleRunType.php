@@ -19,32 +19,33 @@ class SimpleRunType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
-
         $builder
-            ->add('urls', TextareaType::class, [
-                'data' => $options['test_data'],
-                'label' => false,
-                'attr'=> [
-//                    'style' => 'width: 95%; height: 200px; '
+            ->add(
+                'urls', TextareaType::class, [
+                    'data' => $options['test_data'],
+                    'label' => false,
+                    'attr' => [
+                        //                    'style' => 'width: 95%; height: 200px; '
+                    ]
                 ]
-            ])
-        ;
+            );
 
         $builder
-            ->add('submit', SubmitType::class, array(
-                'label' => 'form.label.submit'
-            ))//
+            ->add(
+                'submit', SubmitType::class, array(
+                    'label' => 'form.label.submit'
+                )
+            )//
         ;
-
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
-//            'data_class'     => FieldsGroup::class,
-        ));
+        $resolver->setDefaults(
+            array(//            'data_class'     => FieldsGroup::class,
+            )
+        );
 
         $resolver->setRequired('test_data');
     }
-
 }

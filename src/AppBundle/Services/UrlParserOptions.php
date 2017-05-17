@@ -8,7 +8,6 @@
 
 namespace AppBundle\Services;
 
-
 class UrlParserOptions
 {
 
@@ -19,6 +18,7 @@ class UrlParserOptions
 
     /**
      * UrlParserOptions constructor.
+     *
      * @param $options
      */
     public function __construct(array $options = array())
