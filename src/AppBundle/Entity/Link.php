@@ -26,6 +26,7 @@ class Link
     // link type
     const TYPE_EXTERNAL = 'external';
     const TYPE_INTERNAL = 'internal';
+    const TYPE_SITEMAP = 'sitemap';
 
     /**
      * @var int
@@ -147,10 +148,11 @@ class Link
     private $children;
 
 
-    public function __construct($url = null)
+    public function __construct($url = null, $type = Link::TYPE_INTERNAL)
     {
         $this->children = new ArrayCollection();
         $this->setUrl($url);
+        $this->setType($type);
 
         $this->setRoot($this);
     }
@@ -158,7 +160,12 @@ class Link
     /**
      * @ORM\PostLoad
      */
-    public function parseUrl()
+    function postLoad()
+    {
+        $this->parsed_url = parse_url($this->url);
+    }
+
+    private function parseUrl()
     {
         $this->parsed_url = parse_url($this->url);
     }

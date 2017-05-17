@@ -37,16 +37,66 @@ class UrlParser
             /** @var Response $response */
             $response = $this->browser->get($link->getUrl());
 
-            if($link->isRoot()){
+            // if is root link, query for sitemap.xml
+            if ($link->isRoot()) {
+                $sitemapLink = new Link(sprintf("%s://%s/sitemap.xml", $link->getScheme(), $link->getHost()), Link::TYPE_SITEMAP);
+
+                /** @var Response $robotsRsp */
                 $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
-                if($robotsRsp->getStatusCode() === 200){
+
+                if ($robotsRsp->getStatusCode() === 200) {
+                    // robots.txt exist
                     $link->setRobots($robotsRsp->getContent());
+
+                    preg_match_all('/Sitemap2: ([^\s]+)/', $link->getRobots(), $match);
+                    if (isset($match[1], $match[1][0]) && !empty($match[1][0])) {
+                        // Sitemap url found on robots.txt, use it to get sitemap url
+                        $sitemapLink->setUrl($match[1][0]);
+
+                        // check if child url is relative and has a path (ex: is not a #hash url)
+                        if (!$sitemapLink->getHost() && $sitemapLink->getPath()) {
+                            // child link url is relative, prepend url scheme and host
+
+                            $absolute_url = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $sitemapLink->getPath());
+                            $sitemapLink->setUrl($absolute_url);
+                        }
+                    }
                 }
+                d('site map url ' . $sitemapLink->getUrl());
+                $sitemapRsp = $this->browser->get($sitemapLink->getUrl());
+                $sitemapLink->setResponse($sitemapRsp->getContent());
+
+                $crawler = new Crawler($sitemapLink->getResponse());
+                $crawler = $crawler->filterXPath('//default:sitemapindex/sitemap/loc');
+                dd($crawler->html());
+                $crawler = $crawler->filter('default|sitemapindex sitemap|group yt|aspectRatio');
+
+                foreach ($crawler as $domElement) {
+                    d($domElement->nodeName);
+                    d($domElement->value);
+                }
+die;
+                dd($crawler->getNode(0)->getElementsByTagName('loc')->item(0)->textContent);
+
+                d($crawler->html());
+                dd($crawler->filter('sitemap')->count());
+                $pattern = '(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
+                preg_match_all("#$pattern#i", $sitemapLink->getResponse(), $match);
+                if (isset($match[1]) && !empty($match[1])) {
+                    // sitemap contains urls
+                    $matched_urls = $match[1];
+
+
+                    dd($urls);
+                }
+                dd('sitemap no urls');
+
             };
 
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
+            dd('Debug exception: ' . $e->getMessage());
             return;
         }
 
@@ -108,9 +158,9 @@ class UrlParser
                     continue;
                 }
                 $raw_urls[] = [
-                    'url' => $url,
+                    'url'   => $url,
                     'title' => $link_node->getAttribute('title'),
-                    'text' => $link_node->textContent
+                    'text'  => $link_node->textContent
                 ];
             }
         }
@@ -119,6 +169,11 @@ class UrlParser
         foreach ($raw_urls as $url) {
             $childLink = new Link($url['url']);
 
+
+            // mailto urls
+            if (in_array($childLink->getScheme(), array('mailto'))) {
+                continue;
+            }
 //            dump($childLink->getUrl());
             // skip ignore patterns urls
             if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
@@ -126,11 +181,6 @@ class UrlParser
             }
 
             if ($this->matchPatterns($childLink->getUrl(), $options->getIgnoredUrlPatterns())) {
-                continue;
-            }
-
-            // mailto urls
-            if (in_array($childLink->getScheme(), array('mailto'))) {
                 continue;
             }
 
@@ -192,7 +242,7 @@ class UrlParser
             ->where('l.url = :url')
             ->andWhere('l.root = :root')
             ->setParameters([
-                'url' => $childLink->getUrl(),
+                'url'  => $childLink->getUrl(),
                 'root' => $link->getRoot()
             ])
             ->getQuery()
