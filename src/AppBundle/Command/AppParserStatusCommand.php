@@ -16,13 +16,14 @@ class AppParserStatusCommand extends ContainerAwareCommand
     {
         $this
             ->setName('app:parser:status')
-            ->setDescription('See links global status')
-        ;
+            ->setDescription('See links global status');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var EntityManager $manager */
+        /**
+         * @var EntityManager $manager
+         */
         $manager = $this->getContainer()->get('doctrine')->getManager();
         $waiting = $manager->getRepository(Link::class)->findBy(array('status' => Link::STATUS_WAITING));
         $parsed = $manager->getRepository(Link::class)->findBy(array('status' => Link::STATUS_PARSED));

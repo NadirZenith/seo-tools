@@ -34,12 +34,14 @@ class UrlParser
         $options = $this->initOptions($options);
 
         try {
-            /** @var Response $response */
+            /**
+ * @var Response $response 
+*/
             $response = $this->browser->get($link->getUrl());
 
-            if($link->isRoot()){
+            if($link->isRoot()) {
                 $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
-                if($robotsRsp->getStatusCode() === 200){
+                if($robotsRsp->getStatusCode() === 200) {
                     $link->setRobots($robotsRsp->getContent());
                 }
             };
@@ -119,7 +121,7 @@ class UrlParser
         foreach ($raw_urls as $url) {
             $childLink = new Link($url['url']);
 
-//            dump($childLink->getUrl());
+            //            dump($childLink->getUrl());
             // skip ignore patterns urls
             if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
                 continue;
@@ -191,10 +193,12 @@ class UrlParser
             ->from(Link::class, 'l')
             ->where('l.url = :url')
             ->andWhere('l.root = :root')
-            ->setParameters([
+            ->setParameters(
+                [
                 'url' => $childLink->getUrl(),
                 'root' => $link->getRoot()
-            ])
+                ]
+            )
             ->getQuery()
             ->getResult();
 
