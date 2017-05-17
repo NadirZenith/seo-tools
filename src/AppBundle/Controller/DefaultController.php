@@ -20,72 +20,13 @@ class DefaultController extends Controller
 {
     /**
      * @Route("/index/{slug}", name="index_test", defaults={"slug": false})
+     * @param null $slug
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexTestAction($slug, Request $request)
+    public function indexTestAction($slug = null)
     {
         // replace this example code with whatever you need
-        return $this->render('default/index_test.html.twig', []);
-    }
-
-    /**
-     * @Route("/test", name="test")
-     */
-    public function testAction(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        /**
-         * @var Link $link
-         */
-        $rootLink = $em->getRepository(Link::class)->find(1); // http://smoketest.dev/index
-        //        /** @var Link $link1 */
-        //        $link1 = $em->getRepository(Link::class)->find(3); // http://smoketest.dev/fail
-        //        /** @var Link $link2 */
-        //        $link2 = $em->getRepository(Link::class)->find(4); // http://smoketest.dev/some/file.pdf
-        //
-        //        $new_url1 = 'http://www.google.com';
-        //        $new_url2 = 'http://www.google.es';
-        //
-        //        $nlink1 = new Link($new_url1);
-        //        $nlink2 = new Link($new_url1);
-        //        $nlink3 = new Link($new_url2);
-        //
-        //        $link1->addChildren($nlink1);
-        //
-        //        d($link1);
-        //        dd($nlink1);
-        $url = 'http://smoketest.dev/discover';
-        $childLink = new Link($url);
-
-        $result = $em->createQueryBuilder()
-            ->select('l')
-            ->from(Link::class, 'l')
-            ->where('l.url = :url')
-            ->andWhere('l.root = :root')
-            ->setParameters(
-                [
-                    'url' => $childLink->getUrl(),
-                    'root' => $rootLink->getRoot()
-                ]
-            )
-            ->getQuery()
-            ->getResult();
-        dump($childLink->getUrl() . ' : ' . $rootLink->getId() . ' -> ' . count($result));
-
-        dd($result);
-
-
-        $r = $link1->addChildren($nlink1);
-
-        $r = $nlink1->addChildren($nlink3);
-
-
-        $r = $link2->containsHierarchyUrl($new_url1, true);
-        //        $r = $link2->containsHierarchyUrl($new_url2, true);
-        dd($r);
-
-        d([$link1, $link2]);
-        dd([$nlink1, $nlink2]);
+        return $this->render('default/index_test.html.twig', ['slug' => $slug]);
     }
 
     /**
@@ -93,23 +34,23 @@ class DefaultController extends Controller
      */
     public function smokeTestAction(Request $request)
     {
-        $test_urls = array(
+        $testUrls = array(
             'https://www.schweppes.es/tonica/nuestras-tonicas/classic/soda',
             'https://www.schweppes.es/cocteleria/jigger-cuchara-imperial-y-abridor-como-se-usan-correctamente'
         );
 
-        $test_urls = array();
+        $testUrls = array();
 
         $form = $this->createForm(
             SimpleRunType::class, null, array(
-                'test_data' => implode("\n", $test_urls)
+                'test_data' => implode("\n", $testUrls)
             )
         );
 
         $form->handleRequest($request);
 
         $status = array();
-        $parsed_urls = array();
+        $parsedUrls = array();
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
             $data = $form->getData();
@@ -131,7 +72,7 @@ class DefaultController extends Controller
                 $response = $browser->get($url);
                 $status[$response->getStatusCode()][] = $url;
 
-                $parsed_urls[] = $url;
+                $parsedUrls[] = $url;
                 usleep(500);
             }
         }
@@ -141,7 +82,7 @@ class DefaultController extends Controller
             'default/index.html.twig', [
                 'form' => $form->createView(),
                 'status' => $status,
-                'urls' => $parsed_urls
+                'urls' => $parsedUrls
             ]
         );
     }
@@ -151,7 +92,6 @@ class DefaultController extends Controller
      */
     public function discoverAction(Request $request)
     {
-
         $form = $this->createFormBuilder(new Link(), array())
             ->add('url', UrlType::class)
             ->add(
@@ -160,10 +100,9 @@ class DefaultController extends Controller
                 )
             )
             ->getForm();
-
         $form->handleRequest($request);
 
-        $file_path = false;
+        $filePath = false;
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
             /**
@@ -195,22 +134,6 @@ class DefaultController extends Controller
             $sbrowser->start();
 
             $sbrowser->resizeWindow(1280, 1024);
-            //            $sbrowser->executeScript('
-            //                  document.getElementsByTagName("body")[0].style.overflow = "hidden";
-            //                  document.getElementsByTagName("body")[0].style.height = "1024px";
-            //                  document.getElementsByTagName("body")[0].style.maxHeight = "1024px";
-            //                  document.getElementsByTagName("html")[0].style.overflow = "hidden";
-            //                  document.getElementsByTagName("html")[0].style.height = "1024px";
-            //                  document.getElementsByTagName("html")[0].style.maxHeight = "1024px";
-            //            ');
-            //            $sbrowser->maximizeWindow();
-
-            //            $sdriver->resizeWindow(1280, 1024, $sdriver->getWindowName());
-            //            $sbrowser->resizeWindow(1280, 1024);
-
-
-            //            $sbrowser->visit($link->getUrl());
-            //            $sbrowser->wait(3000);
 
             $cookieArray = array(
                 'domain' => '.schweppes.dev',
@@ -225,15 +148,13 @@ class DefaultController extends Controller
             $sbrowser->visit($link->getUrl());
             $sbrowser->wait(3000);
 
-
-            $page = $sbrowser->getPage();
-
+            $sbrowser->getPage();
 
             $path = $this->getParameter('kernel.root_dir') . '/../web/uploads/';
             $file = 'screenshot.png';
-            $file_path = $path . $file;
+            $filePath = $path . $file;
 
-            file_put_contents($file_path, $sdriver->getScreenshot());
+            file_put_contents($filePath, $sdriver->getScreenshot());
 
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($link);
@@ -245,7 +166,7 @@ class DefaultController extends Controller
             'default/discover.html.twig', [
                 'form' => $form->createView(),
                 'link' => $form->getData(),
-                'screenshot' => $file_path
+                'screenshot' => $filePath
             ]
         );
     }
@@ -267,7 +188,7 @@ class DefaultController extends Controller
 
         $form->handleRequest($request);
 
-        $file_path = false;
+        $filePath = false;
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
             /**
@@ -285,7 +206,7 @@ class DefaultController extends Controller
             $sbrowser->resizeWindow(1280, 1024);
 
             switch ($driver) {
-                case 'phantomjs';
+                case 'phantomjs':
                     $cookieArray = array(
                         'domain' => '.schweppes.dev',
                         'path' => '/',
@@ -330,7 +251,7 @@ class DefaultController extends Controller
             'default/discover.html.twig', [
                 'form' => $form->createView(),
                 'link' => $form->getData(),
-                'screenshot' => $file_path
+                'screenshot' => $filePath
             ]
         );
     }
@@ -376,7 +297,7 @@ class DefaultController extends Controller
     /**
      * @Route("/seo-report-run", name="seo_report_run")
      */
-    public function seoReportRunAction(Request $request)
+    public function seoReportRunAction()
     {
 
         /**
@@ -404,6 +325,5 @@ class DefaultController extends Controller
             $manager->flush();
         }
         dd($links);
-        die;
     }
 }

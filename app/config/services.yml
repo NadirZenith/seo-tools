@@ -15,3 +15,10 @@ services:
     app.url_parser:
         class: AppBundle\Services\UrlParser
         arguments: ['@buzz', '@doctrine.orm.default_entity_manager']
+
+    app.guzzle.client:
+#        class: GuzzleHttp\Client
+        class: AppBundle\Services\HttpClient
+        arguments:
+            - {allow_redirects: {track_redirects: true, max: 10, strict: false, referer: false}, http_errors: false}
+

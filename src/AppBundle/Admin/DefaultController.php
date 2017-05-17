@@ -27,40 +27,36 @@ class DefaultController extends BaseAdminController
         );
     }
 
-    protected function createLinkListQueryBuilder($entityClass, $sortDirection, $sortField, $dqlFilter)
+    protected function createLinkListQueryBuilder($entityClass, $sortDirection, $sortField)
     {
         /**
-         * @var QueryBuilder $qb
+         * @var QueryBuilder $queryBuilder
          */
-        $qb = $this->getDoctrine()->getRepository($entityClass)->createQueryBuilder('l');
+        $queryBuilder = $this->getDoctrine()->getRepository($entityClass)->createQueryBuilder('l');
 
+        $queryBuilder->where('l.parent is NULL');
         if ($parent = $this->request->get('parent')) {
-            $qb->where('l.parent = :parent');
+            $queryBuilder->where('l.parent = :parent');
 
-            $qb->setParameters(
+            $queryBuilder->setParameters(
                 [
                     'parent' => $parent
                 ]
             );
         } elseif ($root = $this->request->get('root')) {
-            $qb->where('l.root = :root');
+            $queryBuilder->where('l.root = :root');
 
-            $qb->setParameters(
+            $queryBuilder->setParameters(
                 [
                     'root' => $root
                 ]
             );
-        } else {
-            $qb->where('l.parent is NULL');
         }
 
-        $qb->orderBy('l.id', $sortDirection);
-        $qb->setMaxResults(100000);
+        $queryBuilder->orderBy(sprintf('l.%s', $sortField), $sortDirection);
+        $queryBuilder->setMaxResults(100000);
 
-        return $qb;
-
-        d($qb->getQuery()->getArrayResult());
-        dd(func_get_args());
+        return $queryBuilder;
     }
 
     protected function findAll($entityClass, $page = 1, $maxPerPage = 15, $sortField = null, $sortDirection = null, $dqlFilter = null)
@@ -68,7 +64,7 @@ class DefaultController extends BaseAdminController
         if ($entityClass === Link::class) {
             $maxPerPage = 10000;
         }
-        //        dd($this->config);
+
         return parent::findAll($entityClass, $page, $maxPerPage, $sortField, $sortDirection, $dqlFilter);
     }
 }

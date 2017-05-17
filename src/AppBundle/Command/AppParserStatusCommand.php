@@ -21,6 +21,7 @@ class AppParserStatusCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $input->getArguments();
         /**
          * @var EntityManager $manager
          */

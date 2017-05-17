@@ -22,7 +22,6 @@
                 </div>
                 <div>
                     <b>Status:</b> <small>({{ urls|length }} urls)</small><br>
-                    {#{{ dump(status) }}#}
                     <div class="pl5">
                         {% if status is not empty %}
                             {% for code, urls in status  %}
@@ -40,7 +39,6 @@
                 </div>
                 <div>
                     <b>url dump:</b><br>
-                    {{ dump(urls) }}
                 </div>
             </div>
 

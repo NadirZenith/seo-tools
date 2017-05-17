@@ -1,0 +1,101 @@
+{#{% extends 'base.html.twig' %}#}
+{% extends "@EasyAdmin/default/layout.html.twig" %}
+
+{% block main %}
+
+    <h1><span>Welcome to</span> SmokeTest Tool with
+        Symfony {{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</h1>
+
+    <section>
+        <h2>What's next?</h2>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Enter Urls:
+                            <small>(one by line)</small>
+                        </h3>
+                        {#<div class="box-tools pull-right">#}
+                        {#<div class="has-feedback">#}
+                        {#<input type="text" class="form-control input-sm" placeholder="Search...">#}
+                        {#<span class="glyphicon glyphicon-search form-control-feedback"></span>#}
+                        {#</div>#}
+                        {#</div><!-- /.box-tools -->#}
+                    </div><!-- /.box-header -->
+                    <div class="box-body">
+                        {{ form(form) }}
+                    </div><!-- /.box-body -->
+                </div><!-- /.box -->
+            </div>
+            {% if links.all is not empty %}
+                <div class="col-md-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Status
+                                <small>({{ links.all|length }} links)</small>
+                            </h3>
+                        </div>
+                        {% set status_codes = links.allFoundStatusCodes %}
+                        {% for status_code in status_codes %}
+                            <div class="box-body">
+                                <h4 class="box-title">{{ status_code }}
+                                    <small>({{ links.withStatusCode(status_code)|length }} links)</small>
+                                </h4>
+                                <ul>
+                                    {% for link in links.withStatusCode(status_code) %}
+                                        <li>
+                                            <a href="{{ link.url }}" target="_blank"
+                                               title="{{ link.url }}">{{ link.url|truncate(85) }}</a>
+                                        </li>
+                                    {% else %}
+                                        <b>nothing found</b>
+                                    {% endfor %}
+                                </ul>
+                            </div><!-- /.box-body -->
+                        {% else %}
+                            <div class="box-body">
+                                <b>Nothing found</b>
+                            </div><!-- /.box-body -->
+                        {% endfor %}
+                        {#<div class="box-body">#}
+                        {#<h4 class="box-title">404#}
+                        {#<small>({{ links.withStatusCode(404)|length }} links)</small>#}
+                        {#</h4>#}
+                        {#{% if links.withStatusCode(404) is not empty %}#}
+                        {#{% for link in links.withStatusCode(404) %}#}
+                        {#<a href="{{ link.url }}" target="_blank"#}
+                        {#title="{{ link.url }}">{{ link.url|truncate(85) }}</a>#}
+                        {#{% endfor %}#}
+                        {#{% else %}#}
+                        {#<b>nothing found</b>#}
+                        {#{% endif %}#}
+                        {#</div><!-- /.box-body -->#}
+                        {#<div class="box-body">#}
+                        {#<h4 class="box-title">200#}
+                        {#<small>({{ links.withStatusCode(200)|length }} links)</small>#}
+                        {#</h4>#}
+                        {#{% if links.withStatusCode(200) is not empty %}#}
+                        {#{% for link in links.withStatusCode(200) %}#}
+                        {#<a href="{{ link.url }}" target="_blank"#}
+                        {#title="{{ link.url }}">{{ link.url|truncate(85) }}</a>#}
+                        {#{% endfor %}#}
+                        {#{% else %}#}
+                        {#<b>nothing found</b>#}
+                        {#{% endif %}#}
+                        {#</div><!-- /.box-body -->#}
+                    </div>
+                </div>
+            {% endif %}
+
+            {#<div class="col-md-12">#}
+            {#<div class="box box-default">#}
+            {#<div class="box-header with-border">#}
+            {#<h3 class="box-title">Dump:</h3>#}
+            {#</div>#}
+            {#</div>#}
+            {#</div>#}
+        </div>
+
+    </section>
+
+{% endblock %}

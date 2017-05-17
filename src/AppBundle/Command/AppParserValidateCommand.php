@@ -26,7 +26,7 @@ class AppParserValidateCommand extends ContainerAwareCommand
         /**
          * @var UrlParser $parser
          */
-        $parser = $this->getContainer()->get('app.url_parser');
+//        $parser = $this->getContainer()->get('app.url_parser');
 
         /**
          * @var EntityManager $manager
@@ -40,8 +40,8 @@ class AppParserValidateCommand extends ContainerAwareCommand
         define('VNU_PATH', '/data/software/vnu_html_validator/vnu.jar');
 
         $file = tmpfile();
-        $file_meta = stream_get_meta_data($file);
-        $path = $file_meta['uri'];
+        $fileMeta = stream_get_meta_data($file);
+        $path = $fileMeta['uri'];
 
         /**
          * @var Link $link
@@ -54,7 +54,7 @@ class AppParserValidateCommand extends ContainerAwareCommand
             $command = sprintf('java -jar %s --format=json %s 2>&1', VNU_PATH, $path);
 
             $out = array();
-            $r = exec($command, $out, $return);
+            exec($command, $out);
             $link->setValidation($out);
 
             //            $parser->validate($link, []);

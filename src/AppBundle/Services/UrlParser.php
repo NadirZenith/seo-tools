@@ -60,8 +60,8 @@ class UrlParser
                         if (!$sitemapLink->getHost() && $sitemapLink->getPath()) {
                             // child link url is relative, prepend url scheme and host
 
-                            $absolute_url = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $sitemapLink->getPath());
-                            $sitemapLink->setUrl($absolute_url);
+                            $absoluteUrl = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $sitemapLink->getPath());
+                            $sitemapLink->setUrl($absoluteUrl);
                         }
                     }
                 }
@@ -78,19 +78,19 @@ class UrlParser
                     d($domElement->nodeName);
                     d($domElement->value);
                 }
-                die;
+
                 dd($crawler->getNode(0)->getElementsByTagName('loc')->item(0)->textContent);
 
-                d($crawler->html());
-                dd($crawler->filter('sitemap')->count());
+//                d($crawler->html());
+//                dd($crawler->filter('sitemap')->count());
                 $pattern = '(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
                 preg_match_all("#$pattern#i", $sitemapLink->getResponse(), $match);
                 if (isset($match[1]) && !empty($match[1])) {
                     // sitemap contains urls
-                    $matched_urls = $match[1];
+//                    $matched_urls = $match[1];
 
 
-                    dd($urls);
+//                    dd($urls);
                 }
                 dd('sitemap no urls');
             };
@@ -115,15 +115,15 @@ class UrlParser
         $crawler = new Crawler($link->getResponse());
 
         // title
-        $title_node = $crawler->filter('head > title');
-        if ($title_node->count()) {
-            $link->setMeta('title', $title_node->text());
+        $node = $crawler->filter('head > title');
+        if ($node->count()) {
+            $link->setMeta('title', $node->text());
         }
 
         // description
-        $meta_description_node = $crawler->filterXPath('//meta[@name="description"]');
-        if ($meta_description_node->count()) {
-            $link->setMeta('description', $meta_description_node->attr('content'));
+        $node = $crawler->filterXPath('//meta[@name="description"]');
+        if ($node->count()) {
+            $link->setMeta('description', $node->attr('content'));
         }
 
         // h1
@@ -148,26 +148,27 @@ class UrlParser
             }
         }
 
-        $links_node = $crawler->filter('a');
-        $raw_urls = array();
-        if ($links_node->count()) {
-            foreach ($links_node as $link_node) {
-                $url = $link_node->getAttribute('href');
+        // link nodes
+        $nodes = $crawler->filter('a');
+        $rawUrls = array();
+        if ($nodes->count()) {
+            foreach ($nodes as $node) {
+                $url = $node->getAttribute('href');
 
                 // ignore hash or empty url
                 if (empty($url) || in_array(substr($url, 0, 1), ['#', '?'])) {
                     continue;
                 }
-                $raw_urls[] = [
+                $rawUrls[] = [
                     'url' => $url,
-                    'title' => $link_node->getAttribute('title'),
-                    'text' => $link_node->textContent
+                    'title' => $node->getAttribute('title'),
+                    'text' => $node->textContent
                 ];
             }
         }
-        $link->setRawUrls($raw_urls);
+        $link->setRawUrls($rawUrls);
 
-        foreach ($raw_urls as $url) {
+        foreach ($rawUrls as $url) {
             $childLink = new Link($url['url']);
 
 
@@ -175,7 +176,6 @@ class UrlParser
             if (in_array($childLink->getScheme(), array('mailto'))) {
                 continue;
             }
-            //            dump($childLink->getUrl());
             // skip ignore patterns urls
             if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
                 continue;
@@ -190,8 +190,8 @@ class UrlParser
                 // child link url is relative, prepend link scheme and host
                 $childLink->setType(Link::TYPE_INTERNAL);
 
-                $absolute_url = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $childLink->getPath());
-                $childLink->setUrl($absolute_url);
+                $absoluteUrl = sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $childLink->getPath());
+                $childLink->setUrl($absoluteUrl);
             }
 
             if ($link->getHost() !== $childLink->getHost()) {
