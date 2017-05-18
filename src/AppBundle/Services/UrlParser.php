@@ -16,6 +16,11 @@ class UrlParser
 
     private $entityManager;
 
+    /**
+     * UrlParser constructor.
+     * @param Browser $buzz
+     * @param EntityManager $entityManager
+     */
     public function __construct(Browser $buzz, EntityManager $entityManager)
     {
         $this->browser = $buzz;
@@ -27,6 +32,10 @@ class UrlParser
         $this->entityManager = $entityManager;
     }
 
+    /**
+     * @param Link $link
+     * @param array|UrlParserOptions $options
+     */
     public function parse(Link $link, $options = array())
     {
 
@@ -39,7 +48,7 @@ class UrlParser
             $response = $this->browser->get($link->getUrl());
 
             // if is root link, query for sitemap.xml
-            if ($link->isRoot()) {
+            if ($link->isRoot() && false) {
                 $sitemapLink = new Link(sprintf("%s://%s/sitemap.xml", $link->getScheme(), $link->getHost()), Link::TYPE_SITEMAP);
 
                 /**
@@ -81,23 +90,23 @@ class UrlParser
 
                 dd($crawler->getNode(0)->getElementsByTagName('loc')->item(0)->textContent);
 
-//                d($crawler->html());
-//                dd($crawler->filter('sitemap')->count());
+                //                d($crawler->html());
+                //                dd($crawler->filter('sitemap')->count());
                 $pattern = '(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
                 preg_match_all("#$pattern#i", $sitemapLink->getResponse(), $match);
                 if (isset($match[1]) && !empty($match[1])) {
                     // sitemap contains urls
-//                    $matched_urls = $match[1];
+                    //                    $matched_urls = $match[1];
 
 
-//                    dd($urls);
+                    //                    dd($urls);
                 }
                 dd('sitemap no urls');
             };
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
-            dd('Debug exception: ' . $e->getMessage());
+            //            dd('Debug exception: ' . $e->getMessage());
             return;
         }
 
@@ -171,7 +180,6 @@ class UrlParser
         foreach ($rawUrls as $url) {
             $childLink = new Link($url['url']);
 
-
             // mailto urls
             if (in_array($childLink->getScheme(), array('mailto'))) {
                 continue;
@@ -223,7 +231,12 @@ class UrlParser
         throw new \InvalidArgumentException(sprintf("Url parser accepts an array or an UrlParserOptions, %s given.", gettype($options)));
     }
 
-    private function matchPatterns($url, $patterns)
+    /**
+     * @param string $url
+     * @param array $patterns
+     * @return bool
+     */
+    private function matchPatterns($url, array $patterns)
     {
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $url)) {
@@ -233,7 +246,12 @@ class UrlParser
         return false;
     }
 
-    private function isLinkInHierarchy(Link $link, $childLink)
+    /**
+     * @param Link $link
+     * @param Link $childLink
+     * @return bool
+     */
+    private function isLinkInHierarchy(Link $link, Link $childLink)
     {
 
         $result = $this->entityManager->createQueryBuilder()

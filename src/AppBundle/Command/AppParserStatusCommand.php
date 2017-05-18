@@ -26,10 +26,12 @@ class AppParserStatusCommand extends ContainerAwareCommand
          * @var EntityManager $manager
          */
         $manager = $this->getContainer()->get('doctrine')->getManager();
-        $waiting = $manager->getRepository(Link::class)->findBy(array('status' => Link::STATUS_WAITING));
-        $parsed = $manager->getRepository(Link::class)->findBy(array('status' => Link::STATUS_PARSED));
+        $waiting = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', Link::STATUS_WAITING)->getQuery()->getSingleScalarResult();
+        $parsed = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', Link::STATUS_PARSED)->getQuery()->getSingleScalarResult();
+        $skipped = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', Link::STATUS_SKIPPED)->getQuery()->getSingleScalarResult();
 
-        $output->writeln(sprintf("Waiting parser: %d links", count($waiting)));
-        $output->writeln(sprintf("Already parsed: %d links", count($parsed)));
+        $output->writeln(sprintf("Waiting parser: %d links", $waiting));
+        $output->writeln(sprintf("Already parsed: %d links", $parsed));
+        $output->writeln(sprintf("Skipped parser: %d links", $skipped));
     }
 }

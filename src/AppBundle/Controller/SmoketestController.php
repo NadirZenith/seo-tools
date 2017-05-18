@@ -47,11 +47,13 @@ class SmoketestController extends Controller
                 $link->setStatusCode($response->getStatusCode());
                 $link->setResponse($response->getBody()->getContents());
                 $link->setResponseHeaders($response->getHeaders());
+
                 $link->setRedirects($client->getRedirects());
+                $link->setMeta('transferTime', $client->getTransferTime());
                 usleep(500);
             }
+            //            dd($links);
         }
-
         // replace this example code with whatever you need
         return $this->render(
             'smoketest/index.html.twig', [
@@ -75,12 +77,12 @@ class SmoketestController extends Controller
         d($response->getStatusCode());
         d($response->getBody()->getContents());
 
-//        $redirectUriHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER); // retrieve Redirect URI history
-//        $redirectCodeHistory = $response->getHeader('X-Guzzle-Redirect-Status-History'); // retrieve Redirect HTTP Status history
-//        array_push($redirectCodeHistory, $response->getStatusCode());
+        //        $redirectUriHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER); // retrieve Redirect URI history
+        //        $redirectCodeHistory = $response->getHeader('X-Guzzle-Redirect-Status-History'); // retrieve Redirect HTTP Status history
+        //        array_push($redirectCodeHistory, $response->getStatusCode());
 
-//        d($redirectUriHistory);
-//        d($redirectCodeHistory);
+        //        d($redirectUriHistory);
+        //        d($redirectCodeHistory);
 
         dd($client->getRedirects());
 

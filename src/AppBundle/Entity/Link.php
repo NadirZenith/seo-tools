@@ -3,13 +3,15 @@
 namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Link
  *
- * @ORM\Table(name="link",                                            uniqueConstraints={ @ORM\UniqueConstraint(name="single_url_hierarchy", columns={"url", "root_id"})})
+ * @ORM\Table(
+ *     name="link",
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="single_url_hierarchy", columns={"url", "root_id"})}
+ * )
  * ORM\Table(name="link")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
  * @ORM\HasLifecycleCallbacks()
@@ -154,8 +156,13 @@ class Link
      */
     private $children;
 
-
-    public function __construct($url = null, $type = Link::TYPE_INTERNAL)
+    /**
+     * Link constructor.
+     *
+     * @param null $url
+     * @param string $type
+     */
+    public function __construct($url = null, $type = self::TYPE_INTERNAL)
     {
         $this->children = new ArrayCollection();
         $this->setUrl($url);
@@ -196,11 +203,17 @@ class Link
         return !empty($this->redirects);
     }
 
+    /**
+     * Parse the current url
+     */
     private function parseUrl()
     {
         $this->parsedUrl = parse_url($this->url);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return isset($this->url) ? $this->url : 'n/a';
@@ -303,7 +316,6 @@ class Link
     public function setResponse($response)
     {
         $this->response = $response;
-        //        $this->setCheckedAt(new \DateTime());
     }
 
     /**
@@ -379,16 +391,25 @@ class Link
         $this->rawUrls = $rawUrls;
     }
 
+    /**
+     * @return bool|string
+     */
     public function getScheme()
     {
         return isset($this->parsedUrl['scheme']) ? $this->parsedUrl['scheme'] : false;
     }
 
+    /**
+     * @return bool|string
+     */
     public function getHost()
     {
         return isset($this->parsedUrl['host']) ? $this->parsedUrl['host'] : false;
     }
 
+    /**
+     * @return bool|string
+     */
     public function getPath()
     {
         return isset($this->parsedUrl['path']) ? $this->parsedUrl['path'] : false;
@@ -405,7 +426,7 @@ class Link
     /**
      * @param ArrayCollection $children
      */
-    public function setChildren($children)
+    public function setChildren(ArrayCollection $children)
     {
         $this->children = $children;
     }
@@ -477,10 +498,13 @@ class Link
         $this->root = $root;
     }
 
-    private function getLinkChildrenUrls(Link $link = null)
+    /**
+     * @param Link $link
+     * @return array
+     */
+    private function getLinkChildrenUrls(Link $link)
     {
         $urls = [];
-
         if ($link) {
             foreach ($link->getChildren()->toArray() as $link) {
                 array_push($urls, $link->getUrl());
@@ -490,14 +514,21 @@ class Link
         return $urls;
     }
 
+    /**
+     * @return array Array of childre urls
+     */
     public function getChildrenUrls()
     {
         return $this->getLinkChildrenUrls($this);
     }
 
-    public function containsLinkChildrenUrl(Link $link, $url = null)
+    /**
+     * @param Link $link
+     * @param string $url
+     * @return bool
+     */
+    public function containsLinkChildrenUrl(Link $link, $url)
     {
-
         return $link->getChildren()->exists(
             function ($idx, $link) use ($url) {
                 return $link->getUrl() === $url;
@@ -553,7 +584,9 @@ class Link
         $this->responseHeaders = $responseHeaders;
     }
 
-
+    /**
+     * @return bool True if its a root link, False if its not
+     */
     public function isRoot()
     {
         return $this->getId() === $this->getRoot()->getId();
@@ -574,21 +607,4 @@ class Link
     {
         $this->robots = $robots;
     }
-
-
-    //    public function containsHierarchyUrl($url, $debug = false)
-    //    {
-    ////        d($this->getId());
-    //        $link = $this->getRoot();
-    //        $contains = $this->containsLinkChildrenUrl($link);
-    //
-    //        d($contains);
-    //        foreach ($link->getChildren()->getValues() as $clink) {
-    //
-    //            $contains = $this->containsLinkChildrenUrl($clink, $url);
-    //
-    //        }
-    //        dd($contains);
-    //        return false;
-    //    }
 }

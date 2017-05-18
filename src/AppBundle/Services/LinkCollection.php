@@ -16,9 +16,11 @@ class LinkCollection
 
     public function getWithStatusCode($statusCode = 200)
     {
-        return $this->links->filter(function (Link $link) use ($statusCode) {
-            return $link->getStatusCode() === $statusCode;
-        });
+        return $this->links->filter(
+            function (Link $link) use ($statusCode) {
+                return $link->getStatusCode() === $statusCode;
+            }
+        );
     }
 
     public function getAll()
@@ -30,11 +32,13 @@ class LinkCollection
     {
         $statusCodes = [];
 
-        $this->links->filter(function (Link $link) use (&$statusCodes) {
-            if (!in_array($link->getStatusCode(), $statusCodes)) {
-                array_push($statusCodes, $link->getStatusCode());
+        $this->links->filter(
+            function (Link $link) use (&$statusCodes) {
+                if (!in_array($link->getStatusCode(), $statusCodes)) {
+                    array_push($statusCodes, $link->getStatusCode());
+                }
             }
-        });
+        );
 
         return $statusCodes;
     }

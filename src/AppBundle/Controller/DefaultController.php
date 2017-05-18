@@ -31,6 +31,8 @@ class DefaultController extends Controller
 
     /**
      * @Route("/", name="homepage")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function smokeTestAction(Request $request)
     {
@@ -89,6 +91,8 @@ class DefaultController extends Controller
 
     /**
      * @Route("/discover", name="discover_homepage")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function discoverAction(Request $request)
     {
@@ -173,6 +177,8 @@ class DefaultController extends Controller
 
     /**
      * @Route("/seo-report2", name="seo_report2")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function seoReport2Action(Request $request)
     {
@@ -208,13 +214,13 @@ class DefaultController extends Controller
             switch ($driver) {
                 case 'phantomjs':
                     $cookieArray = array(
-                        'domain' => '.schweppes.dev',
-                        'path' => '/',
-                        'name' => 'allowAdultContent',
-                        'value' => '1',
-                        'secure' => false, // thanks, chibimagic!
-                    );
-                    $sdriver->getWebDriverSession()->setCookie($cookieArray);
+                    'domain' => '.schweppes.dev',
+                    'path' => '/',
+                    'name' => 'allowAdultContent',
+                    'value' => '1',
+                    'secure' => false, // thanks, chibimagic!
+                        );
+                        $sdriver->getWebDriverSession()->setCookie($cookieArray);
                     break;
                 case 'chrome':
                     $sbrowser->visit($link->getUrl());
@@ -258,6 +264,8 @@ class DefaultController extends Controller
 
     /**
      * @Route("/seo-report", name="seo_report")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function seoReportAction(Request $request)
     {
