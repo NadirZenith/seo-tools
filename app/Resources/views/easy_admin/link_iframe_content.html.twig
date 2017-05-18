@@ -1,0 +1,9 @@
+{% if view == 'show' %}
+    <iframe src="{{ url('admin_link_iframe_content', {id: item.id}) }}" width="100%" height="500px"></iframe>
+
+    <pre>
+        {{ value|nl2br }}
+    </pre>
+{% else %}
+    {{ value|easyadmin_truncate }}
+{% endif %}

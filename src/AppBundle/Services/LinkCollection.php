@@ -42,4 +42,9 @@ class LinkCollection
 
         return $statusCodes;
     }
+
+    public function getRoot()
+    {
+        return $this->links->isEmpty() ? false : $this->links->first()->getRoot();
+    }
 }

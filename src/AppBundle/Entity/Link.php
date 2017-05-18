@@ -84,7 +84,7 @@ class Link
      *
      * @ORM\Column(name="status_code", type="string", length=255, nullable=true)
      */
-    private $statusCode;
+    private $statusCode = 0;
 
     /**
      * @var string

@@ -52,9 +52,14 @@ class SmoketestController extends Controller
                 $link->setMeta('transferTime', $client->getTransferTime());
                 usleep(500);
             }
-            //            dd($links);
+
+            return $this->render(
+                'link/index.html.twig', [
+                    'links' => new LinkCollection($links)
+                ]
+            );
         }
-        // replace this example code with whatever you need
+
         return $this->render(
             'smoketest/index.html.twig', [
                 'form' => $form->createView(),

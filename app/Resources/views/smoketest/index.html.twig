@@ -1,4 +1,3 @@
-{#{% extends 'base.html.twig' %}#}
 {% extends "@EasyAdmin/default/layout.html.twig" %}
 
 {% block main %}
@@ -15,12 +14,6 @@
                         <h3 class="box-title">Enter Urls:
                             <small>(one by line)</small>
                         </h3>
-                        {#<div class="box-tools pull-right">#}
-                        {#<div class="has-feedback">#}
-                        {#<input type="text" class="form-control input-sm" placeholder="Search...">#}
-                        {#<span class="glyphicon glyphicon-search form-control-feedback"></span>#}
-                        {#</div>#}
-                        {#</div><!-- /.box-tools -->#}
                     </div><!-- /.box-header -->
                     <div class="box-body">
                         {{ form(form) }}
@@ -44,6 +37,7 @@
                                 <ul>
                                     {% for link in links.withStatusCode(status_code) %}
                                         <li>
+                                            {{ dump(link) }}
                                             <a href="{{ link.url }}" target="_blank"
                                                title="{{ link.url }}">{{ link.url|truncate(85) }}</a>
                                         </li>
@@ -57,45 +51,9 @@
                                 <b>Nothing found</b>
                             </div><!-- /.box-body -->
                         {% endfor %}
-                        {#<div class="box-body">#}
-                        {#<h4 class="box-title">404#}
-                        {#<small>({{ links.withStatusCode(404)|length }} links)</small>#}
-                        {#</h4>#}
-                        {#{% if links.withStatusCode(404) is not empty %}#}
-                        {#{% for link in links.withStatusCode(404) %}#}
-                        {#<a href="{{ link.url }}" target="_blank"#}
-                        {#title="{{ link.url }}">{{ link.url|truncate(85) }}</a>#}
-                        {#{% endfor %}#}
-                        {#{% else %}#}
-                        {#<b>nothing found</b>#}
-                        {#{% endif %}#}
-                        {#</div><!-- /.box-body -->#}
-                        {#<div class="box-body">#}
-                        {#<h4 class="box-title">200#}
-                        {#<small>({{ links.withStatusCode(200)|length }} links)</small>#}
-                        {#</h4>#}
-                        {#{% if links.withStatusCode(200) is not empty %}#}
-                        {#{% for link in links.withStatusCode(200) %}#}
-                        {#<a href="{{ link.url }}" target="_blank"#}
-                        {#title="{{ link.url }}">{{ link.url|truncate(85) }}</a>#}
-                        {#{% endfor %}#}
-                        {#{% else %}#}
-                        {#<b>nothing found</b>#}
-                        {#{% endif %}#}
-                        {#</div><!-- /.box-body -->#}
                     </div>
                 </div>
             {% endif %}
-
-            {#<div class="col-md-12">#}
-            {#<div class="box box-default">#}
-            {#<div class="box-header with-border">#}
-            {#<h3 class="box-title">Dump:</h3>#}
-            {#</div>#}
-            {#</div>#}
-            {#</div>#}
         </div>
-
     </section>
-
 {% endblock %}
