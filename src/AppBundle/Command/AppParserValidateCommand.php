@@ -26,7 +26,7 @@ class AppParserValidateCommand extends ContainerAwareCommand
         /**
          * @var UrlParser $parser
          */
-//        $parser = $this->getContainer()->get('app.url_parser');
+        //        $parser = $this->getContainer()->get('app.url_parser');
 
         /**
          * @var EntityManager $manager
