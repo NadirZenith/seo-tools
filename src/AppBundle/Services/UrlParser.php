@@ -7,6 +7,7 @@ use Buzz\Browser;
 use Buzz\Client\Curl;
 use Buzz\Message\Response;
 use Doctrine\ORM\EntityManager;
+use SimpleXMLElement;
 use Symfony\Component\DomCrawler\Crawler;
 
 class UrlParser
@@ -45,7 +46,7 @@ class UrlParser
             /**
              * @var Response $response
              */
-            $response = $this->browser->get($link->getUrl());
+//            $response = $this->browser->get($link->getUrl());
 
             // if is root link, query for sitemap.xml
             if ($link->isRoot() && false) {
@@ -57,11 +58,14 @@ class UrlParser
                 $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
 
                 if ($robotsRsp->getStatusCode() === 200) {
+                    d('robots exist');
+
                     // robots.txt exist
                     $link->setRobots($robotsRsp->getContent());
 
-                    preg_match_all('/Sitemap2: ([^\s]+)/', $link->getRobots(), $match);
+                    preg_match_all('/Sitemap: ([^\s]+)/', $link->getRobots(), $match);
                     if (isset($match[1], $match[1][0]) && !empty($match[1][0])) {
+                        d('robots contains sitemap url');
                         // Sitemap url found on robots.txt, use it to get sitemap url
                         $sitemapLink->setUrl($match[1][0]);
 
@@ -75,41 +79,29 @@ class UrlParser
                     }
                 }
                 d('site map url ' . $sitemapLink->getUrl());
-                $sitemapRsp = $this->browser->get($sitemapLink->getUrl());
+                $sitemapRsp = $this->browser->get('http://www.schweppes-sf.dev/sitemap.xml');
+//                $sitemapRsp = $this->browser->get($sitemapLink->getUrl());
                 $sitemapLink->setResponse($sitemapRsp->getContent());
-
-                $crawler = new Crawler($sitemapLink->getResponse());
-                $crawler = $crawler->filterXPath('//default:sitemapindex/sitemap/loc');
-                dd($crawler->html());
-                $crawler = $crawler->filter('default|sitemapindex sitemap|group yt|aspectRatio');
-
-                foreach ($crawler as $domElement) {
-                    d($domElement->nodeName);
-                    d($domElement->value);
+                $sitemapXml = new SimpleXmlElement($sitemapLink->getResponse());
+                $urls = [];
+                $key = 'url';
+                if (isset($sitemapXml->sitemap)) {
+                    // sitemap is a index sitemap which contains urls to multiple sitemaps
+                    $key = 'sitemap';
                 }
 
-                dd($crawler->getNode(0)->getElementsByTagName('loc')->item(0)->textContent);
-
-                //                d($crawler->html());
-                //                dd($crawler->filter('sitemap')->count());
-                $pattern = '(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
-                preg_match_all("#$pattern#i", $sitemapLink->getResponse(), $match);
-                if (isset($match[1]) && !empty($match[1])) {
-                    // sitemap contains urls
-                    //                    $matched_urls = $match[1];
-
-
-                    //                    dd($urls);
+                foreach ($sitemapXml->$key as $url) {
+                    $urls[] = strval($url->loc);
                 }
-                dd('sitemap no urls');
+
             };
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
-            //            dd('Debug exception: ' . $e->getMessage());
+            dd('Debug exception: ' . $e->getMessage());
             return;
         }
-
+        dd('fill link with response');
         $link->setCheckedAt(new \DateTime());
         $link->setStatusCode($response->getStatusCode());
 
@@ -169,9 +161,9 @@ class UrlParser
                     continue;
                 }
                 $rawUrls[] = [
-                    'url' => $url,
+                    'url'   => $url,
                     'title' => $node->getAttribute('title'),
-                    'text' => $node->textContent
+                    'text'  => $node->textContent
                 ];
             }
         }
@@ -261,7 +253,7 @@ class UrlParser
             ->andWhere('l.root = :root')
             ->setParameters(
                 [
-                    'url' => $childLink->getUrl(),
+                    'url'  => $childLink->getUrl(),
                     'root' => $link->getRoot()
                 ]
             )
