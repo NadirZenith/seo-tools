@@ -93,7 +93,6 @@ class UrlParser
                 foreach ($sitemapXml->$key as $url) {
                     $urls[] = strval($url->loc);
                 }
-
             };
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);

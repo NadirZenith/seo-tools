@@ -24,7 +24,6 @@ class LinkController extends Controller
                 'links' => new LinkCollection($links)
             ]
         );
-
     }
 
     /**

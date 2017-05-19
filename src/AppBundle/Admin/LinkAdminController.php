@@ -22,7 +22,6 @@ class LinkAdminController extends BaseAdminController
 //        } else {
         if ($parent = $this->request->get('parent')) {
             $queryBuilder->where('l.parent = :parent')->setParameter('parent', $parent);
-
         } elseif ($root = $this->request->get('root')) {
             $queryBuilder->where('l.root = :root')->setParameter('root', $root);
         }
