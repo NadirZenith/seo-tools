@@ -1,0 +1,117 @@
+{% extends "@EasyAdmin/default/layout.html.twig" %}
+
+{% block main %}
+
+    <h1>Report from {{ links.root.url }}</h1>
+
+    <section>
+        {#<h2>What's next?</h2>#}
+        <div class="row">
+            {% if links.all is not empty %}
+                <div class="col-md-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Status
+                                <small>({{ links.all|length }})</small>
+                            </h3>
+                        </div>
+                        {% set status_codes = links.allFoundStatusCodes|sort|reverse %}
+
+                        <div class="box-body">
+                            <ul class="nav nav-tabs" role="tablist">
+                                {% for status_code in status_codes %}
+                                    <li role="presentation" {% if loop.index == 1 %}class="active"{% endif %}>
+                                        <a href="#status-code-{{ status_code }}"
+                                           aria-controls="status-code-{{ status_code }}" role="tab"
+                                           data-toggle="tab">
+                                            {{ status_code }}
+                                            <small>({{ links.withStatusCode(status_code)|length }})</small>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <div class="tab-content">
+                                {% for status_code in status_codes %}
+                                    <div role="tabpanel" class="tab-pane{% if loop.index == 1 %} active{% endif %}"
+                                         id="status-code-{{ status_code }}">
+                                        <div class="panel-group" id="accordion-link-list" role="tablist"
+                                             aria-multiselectable="true">
+                                            {% for link in links.withStatusCode(status_code) %}
+                                                {#{{ include('link/list_item.html.twig', { link: link }) }}#}
+
+                                                {% set _unique_id = link.id|default(random()) %}
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading" role="tab" id="heading{{ _unique_id }}">
+                                                        <h4 class="panel-title">
+                                                            <a class="collapsed" role="button" data-toggle="collapse"
+                                                               data-parent="#accordion-link-list"
+                                                               href="#collapse{{ _unique_id }}"
+                                                               aria-expanded="false"
+                                                               aria-controls="collapse{{ _unique_id }}">
+                                                                {{ link.url }}#{{ _unique_id }}
+                                                                <a href="{{ link.url }}"
+                                                                   target="_blank"><i
+                                                                            class="fa fa-external-link"></i></a>
+
+                                                                {% if link.redirects %}
+                                                                    <small title="Final Redirect">
+                                                                        <i class="fa fa-angle-right"></i>
+                                                                        {{ link.redirects|last|first }}
+                                                                        <a href="{{ link.redirects|last|first }}"
+                                                                           target="_blank"><i
+                                                                                    class="fa fa-external-link"></i></a>
+                                                                    </small>
+                                                                {% endif %}
+
+                                                                <small title="Parent">
+                                                                    <i class="fa fa-angle-left"></i>
+                                                                    {{ link.parent.url|default(link.root.url) }}
+                                                                    <a href="{{ link.parent.url|default(link.root.url) }}"
+                                                                       target="_blank"><i
+                                                                                class="fa fa-external-link"></i></a>
+                                                                </small>
+
+                                                                {% if link.redirects %}
+                                                                    <small class="label bg-orange"
+                                                                           title="has redirects">
+                                                                        {{ link.redirects|length }}</small>
+                                                                {% endif %}
+
+                                                                {% if link.type == constant('AppBundle\\Entity\\Link::TYPE_EXTERNAL') %}
+                                                                    <small class="label pull-right bg-blue">External</small>
+                                                                {% endif %}
+
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapse{{ _unique_id }}" class="panel-collapse collapse"
+                                                         role="tabpanel" aria-labelledby="heading{{ _unique_id }}">
+                                                        <div class="panel-body">
+                                                            {{ include('@EasyAdmin/default/field_string.html.twig', { value: link.statusMessage, view: 'show' }) }}
+                                                            <b>Metas</b>
+                                                            {{ include('easy_admin/field_array.html.twig', { value: link.metas, view: 'show' }) }}
+                                                            <b>Headers</b>
+                                                            {{ include('easy_admin/field_array.html.twig', { value: link.responseHeaders, view: 'show' }) }}
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div><b>Nothing found</b></div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="box-body">
+                                        <b>Nothing found</b>
+                                    </div><!-- /.box-body -->
+                                {% endfor %}
+                            </div><!-- /.tab-content -->
+                        </div><!-- /.box-body -->
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

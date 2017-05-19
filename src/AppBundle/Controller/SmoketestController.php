@@ -17,47 +17,39 @@ class SmoketestController extends Controller
 {
     /**
      * @Route("/")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request)
     {
 
-        $testUrls = [];
-        $form = $this->createForm(
-            SimpleRunType::class, null, array(
-                'test_data' => implode("\n", $testUrls)
-            )
-        );
+        $form = $this->createForm(SimpleRunType::class, null);
 
         $form->handleRequest($request);
 
         $links = [];
         if ($form->isSubmitted() && $form->isValid()) {
-            set_time_limit(0);
+//            set_time_limit(0);
             $urls = array_values(explode("\r\n", $form->get('urls')->getData()));
 
-            /**
-             * @var HttpClient $client
-             */
-            $client = $this->get('app.guzzle.client');
+            $parser = $this->get('app.url_parser');
             foreach ($urls as $url) {
                 $links[] = $link = new Link($url);
 
-                $response = $client->get($link->getUrl());
-
-                $link->setStatusCode($response->getStatusCode());
-                $link->setResponse($response->getBody()->getContents());
-                $link->setResponseHeaders($response->getHeaders());
-
-                $link->setRedirects($client->getRedirects());
-                $link->setMeta('transferTime', $client->getTransferTime());
+                $parser->parse($link);
                 usleep(500);
             }
-            //            dd($links);
+
+            return $this->render(
+                'link/index.html.twig', [
+                    'links' => new LinkCollection($links)
+                ]
+            );
         }
-        // replace this example code with whatever you need
+
         return $this->render(
             'smoketest/index.html.twig', [
-                'form' => $form->createView(),
+                'form'  => $form->createView(),
                 'links' => new LinkCollection($links)
             ]
         );

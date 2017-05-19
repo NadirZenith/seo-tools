@@ -1,22 +1,25 @@
 {% if view == 'show' %}
-    <table class="raw_urls">
-        <thead>
+    <div class="raw_urls">
+        {{ value|length }} urls
+        <table>
+            <thead>
             <tr>
                 {% for key in value.0|keys %}
                     <th>{{ key }}</th>
                 {% endfor %}
             </tr>
-        </thead>
-        <tbody>
-        {% for link in value %}
-            <tr>
-                {% for val in link %}
-                    <td>{{ val }}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {% for link in value %}
+                <tr>
+                    {% for val in link %}
+                        <td>{{ val }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
     {{ value|length }} raw urls
 {% endif %}

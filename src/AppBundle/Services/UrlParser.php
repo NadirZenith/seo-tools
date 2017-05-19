@@ -3,32 +3,26 @@
 namespace AppBundle\Services;
 
 use AppBundle\Entity\Link;
-use Buzz\Browser;
-use Buzz\Client\Curl;
 use Buzz\Message\Response;
 use Doctrine\ORM\EntityManager;
+use SimpleXMLElement;
 use Symfony\Component\DomCrawler\Crawler;
 
 class UrlParser
 {
 
-    private $browser;
+    private $client;
 
     private $entityManager;
 
     /**
      * UrlParser constructor.
-     * @param Browser $buzz
+     * @param HttpClient $client
      * @param EntityManager $entityManager
      */
-    public function __construct(Browser $buzz, EntityManager $entityManager)
+    public function __construct(HttpClient $client, EntityManager $entityManager)
     {
-        $this->browser = $buzz;
-        $this->browser->setClient(new Curl());
-        $this->browser->getClient()->setTimeout(5000);
-        $this->browser->getClient()->setVerifyPeer(false);
-        $this->browser->getClient()->setIgnoreErrors(true);
-
+        $this->client = $client;
         $this->entityManager = $entityManager;
     }
 
@@ -36,16 +30,14 @@ class UrlParser
      * @param Link $link
      * @param array|UrlParserOptions $options
      */
-    public function parse(Link $link, $options = array())
+    public function parse(Link $link, $options = [])
     {
 
         $options = $this->initOptions($options);
 
         try {
-            /**
-             * @var Response $response
-             */
-            $response = $this->browser->get($link->getUrl());
+            /** @var \GuzzleHttp\Psr7\Response $response */
+            $response = $this->client->get($link->getUrl());
 
             // if is root link, query for sitemap.xml
             if ($link->isRoot() && false) {
@@ -54,14 +46,16 @@ class UrlParser
                 /**
                  * @var Response $robotsRsp
                  */
-                $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
-
+                $robotsRsp = $this->client->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
                 if ($robotsRsp->getStatusCode() === 200) {
+                    d('robots exist');
+
                     // robots.txt exist
                     $link->setRobots($robotsRsp->getContent());
 
-                    preg_match_all('/Sitemap2: ([^\s]+)/', $link->getRobots(), $match);
+                    preg_match_all('/Sitemap: ([^\s]+)/', $link->getRobots(), $match);
                     if (isset($match[1], $match[1][0]) && !empty($match[1][0])) {
+                        d('robots contains sitemap url');
                         // Sitemap url found on robots.txt, use it to get sitemap url
                         $sitemapLink->setUrl($match[1][0]);
 
@@ -75,43 +69,33 @@ class UrlParser
                     }
                 }
                 d('site map url ' . $sitemapLink->getUrl());
-                $sitemapRsp = $this->browser->get($sitemapLink->getUrl());
+                $sitemapRsp = $this->browser->get('http://www.schweppes-sf.dev/sitemap.xml');
+//                $sitemapRsp = $this->browser->get($sitemapLink->getUrl());
                 $sitemapLink->setResponse($sitemapRsp->getContent());
-
-                $crawler = new Crawler($sitemapLink->getResponse());
-                $crawler = $crawler->filterXPath('//default:sitemapindex/sitemap/loc');
-                dd($crawler->html());
-                $crawler = $crawler->filter('default|sitemapindex sitemap|group yt|aspectRatio');
-
-                foreach ($crawler as $domElement) {
-                    d($domElement->nodeName);
-                    d($domElement->value);
+                $sitemapXml = new SimpleXmlElement($sitemapLink->getResponse());
+                $urls = [];
+                $key = 'url';
+                if (isset($sitemapXml->sitemap)) {
+                    // sitemap is a index sitemap which contains urls to multiple sitemaps
+                    $key = 'sitemap';
                 }
 
-                dd($crawler->getNode(0)->getElementsByTagName('loc')->item(0)->textContent);
-
-                //                d($crawler->html());
-                //                dd($crawler->filter('sitemap')->count());
-                $pattern = '(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
-                preg_match_all("#$pattern#i", $sitemapLink->getResponse(), $match);
-                if (isset($match[1]) && !empty($match[1])) {
-                    // sitemap contains urls
-                    //                    $matched_urls = $match[1];
-
-
-                    //                    dd($urls);
+                foreach ($sitemapXml->$key as $url) {
+                    $urls[] = strval($url->loc);
                 }
-                dd('sitemap no urls');
             };
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
-            //            dd('Debug exception: ' . $e->getMessage());
+//            dd('Debug exception: ' . $e->getMessage());
             return;
         }
 
-        $link->setCheckedAt(new \DateTime());
         $link->setStatusCode($response->getStatusCode());
+        $link->setRedirects($this->client->getRedirects());
+        $link->setMeta('transferTime', $this->client->getTransferTime());
+        $link->setCheckedAt(new \DateTime());
+
 
         // if it is an external link, don't need to crawl more urls
         if ($link->getType() === Link::TYPE_EXTERNAL) {
@@ -119,8 +103,10 @@ class UrlParser
             return;
         }
 
-        $link->setResponse($response->getContent());
+        $link->setResponse($response->getBody()->getContents());
         $link->setResponseHeaders($response->getHeaders());
+
+        // crawler -----------------------
         $crawler = new Crawler($link->getResponse());
 
         // title
@@ -159,8 +145,9 @@ class UrlParser
 
         // link nodes
         $nodes = $crawler->filter('a');
-        $rawUrls = array();
+        $rawUrls = [];
         if ($nodes->count()) {
+            /** @var \DOMElement $node */
             foreach ($nodes as $node) {
                 $url = $node->getAttribute('href');
 
@@ -169,9 +156,11 @@ class UrlParser
                     continue;
                 }
                 $rawUrls[] = [
-                    'url' => $url,
+                    'url'   => $url,
                     'title' => $node->getAttribute('title'),
-                    'text' => $node->textContent
+                    'text'  => $node->textContent,
+                    'line'  => $node->getLineNo(),
+                    'path'  => $node->getNodePath(),
                 ];
             }
         }
@@ -181,7 +170,7 @@ class UrlParser
             $childLink = new Link($url['url']);
 
             // mailto urls
-            if (in_array($childLink->getScheme(), array('mailto'))) {
+            if (in_array($childLink->getScheme(), ['mailto'])) {
                 continue;
             }
 
@@ -254,6 +243,9 @@ class UrlParser
      */
     private function isLinkInHierarchy(Link $link, Link $childLink)
     {
+        if (!$link->getId()) {
+            return false;
+        }
 
         $result = $this->entityManager->createQueryBuilder()
             ->select('l')
@@ -262,7 +254,7 @@ class UrlParser
             ->andWhere('l.root = :root')
             ->setParameters(
                 [
-                    'url' => $childLink->getUrl(),
+                    'url'  => $childLink->getUrl(),
                     'root' => $link->getRoot()
                 ]
             )
