@@ -37,7 +37,7 @@ class UrlParser
      * @param Link $link
      * @param array|UrlParserOptions $options
      */
-    public function parse(Link $link, $options = array())
+    public function parse(Link $link, $options = [])
     {
 
         $options = $this->initOptions($options);
@@ -150,7 +150,7 @@ class UrlParser
 
         // link nodes
         $nodes = $crawler->filter('a');
-        $rawUrls = array();
+        $rawUrls = [];
         if ($nodes->count()) {
             foreach ($nodes as $node) {
                 $url = $node->getAttribute('href');
@@ -172,7 +172,7 @@ class UrlParser
             $childLink = new Link($url['url']);
 
             // mailto urls
-            if (in_array($childLink->getScheme(), array('mailto'))) {
+            if (in_array($childLink->getScheme(), ['mailto'])) {
                 continue;
             }
             // skip ignore patterns urls
