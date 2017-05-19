@@ -1,32 +1,37 @@
 {% if view == 'show' %}
     {% if value is not empty %}
-        <a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, parent: item.id}) }}">Children list</a> |
-        <a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, root: item.root.id}) }}">Root list</a>
+        <div class="children_links">
+            {{ value|length }} links |
+            <a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, parent: item.id}) }}">Children
+                list</a> |
+            <a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, root: item.root.id}) }}">Root
+                list</a>
 
-        <table class="children_links">
-            <thead>
-            <tr>
-                <th>url</th>
-                <th>status</th>
-                <th>code</th>
-                <th>type</th>
-                <th>validation</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for link in value %}
+            <table>
+                <thead>
                 <tr>
-                    <td>
-                        <a href="{{ path('easyadmin', {action: "show", entity: "Link", id: link.id}) }}">{{ link.url }}</a>
-                    </td>
-                    <td>{{ link.status }}</td>
-                    <td>{{ link.statusCode }}</td>
-                    <td>{{ link.type }}</td>
-                    <td>{{ link.validation|length }}</td>
+                    <th>url</th>
+                    <th>status</th>
+                    <th>code</th>
+                    <th>type</th>
+                    <th>validation</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for link in value %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('easyadmin', {action: "show", entity: "Link", id: link.id}) }}">{{ link.url }}</a>
+                        </td>
+                        <td>{{ link.status }}</td>
+                        <td>{{ link.statusCode }}</td>
+                        <td>{{ link.type }}</td>
+                        <td>{{ link.validation|length }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
         No children links
     {% endif %}

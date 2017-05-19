@@ -37,7 +37,6 @@
                                 <ul>
                                     {% for link in links.withStatusCode(status_code) %}
                                         <li>
-                                            {{ dump(link) }}
                                             <a href="{{ link.url }}" target="_blank"
                                                title="{{ link.url }}">{{ link.url|truncate(85) }}</a>
                                         </li>

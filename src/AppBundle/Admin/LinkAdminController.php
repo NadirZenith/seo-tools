@@ -9,23 +9,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class LinkAdminController extends BaseAdminController
 {
 
-//    /**
-//     * @Route("/admin/delete_element/{id}", name="admin_link_children")
-//     */
-//    public function childrenAction()
-//    {
-//        unset($this->entity['list']['actions']['children']);
-//        $fields = $this->entity['list']['fields'];
-////        dump($this);die;
-//        $paginator = $this->findAll($this->entity['class'], $this->request->query->get('page', 1), $this->config['list']['max_results'], $this->request->query->get('sortField'), $this->request->query->get('sortDirection'), $this->entity['list']['dql_filter']);
-//        return $this->render($this->entity['templates']['list'], array(
-//            'paginator' => $paginator,
-//            'fields' => $fields,
-//            'delete_form_template' => $this->createDeleteForm($this->entity['name'], '__id__')->createView(),
-//        ));
-//
-//    }
-
     protected function createListQueryBuilder($entityClass, $sortDirection, $sortField = null, $dqlFilter = null)
     {
         /**

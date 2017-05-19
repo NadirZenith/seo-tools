@@ -1,28 +1,21 @@
-pre{
-    max-height: 300px;
-}
+/*common*/
+pre{ max-height: 300px;}
+textarea{ width: 90%; min-height: 200px; padding-left: 10px;}
 
-textarea{
-    width: 90%;
-    min-height: 200px;
-    padding-left: 10px;
-}
 /* raw urls table */
+.raw_urls {max-height: 300px; overflow-y: scroll}
 .raw_urls th{text-align: center;}
 .raw_urls th, .raw_urls td{border: 1px solid #666; white-space: nowrap; padding-right: 15px; overflow: hidden}
+.raw_urls tr td:nth-child(1){max-width: 1000px;}
+.raw_urls tr td:nth-child(2), .raw_urls tr td:nth-child(3){max-width: 120px; overflow: hidden;}
+.raw_urls tr td:nth-child(2):hover, .raw_urls tr td:nth-child(3):hover{max-width: inherit; background-color: red;}
 
-.raw_urls tr td:nth-child(1){
-    max-width: 1000px;
-}
-.raw_urls tr td:nth-child(2), .raw_urls tr td:nth-child(3){
-    max-width: 120px;
-    overflow: hidden;
-}
-.raw_urls tr td:nth-child(2):hover, .raw_urls tr td:nth-child(3):hover{
-    max-width: inherit;
-
-    background-color: red;
-}
 /* children links table */
+.children_links{max-height: 300px; overflow-y: scroll}
 .children_links th{text-align: center;}
 .children_links th, .children_links td{border: 1px solid #666; white-space: nowrap; padding-right: 15px;}
+
+ /* ex: tags and headers */
+.field_array{max-height: 300px; overflow-y: scroll}
+.field_array li{margin: 0}
+.field_array li span{float: left; min-width: 100px}

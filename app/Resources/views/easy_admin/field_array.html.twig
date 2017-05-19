@@ -1,10 +1,13 @@
 {% if view == 'show' %}
     {% if value|length > 0 %}
-        <ul>
-            {% for key,element in value %}
-                <li>{{ key }} -> {{ element }}</li>
-            {% endfor %}
-        </ul>
+        <div class="field_array">
+            {{ value|length }} keys
+            <ul>
+                {% for key,element in value %}
+                    <li><span><b>{{ key }}</b></span> -> {{ element }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     {% else %}
         <div class="empty collection-empty">
             {{ include(entity_config.templates.label_empty) }}
@@ -15,7 +18,7 @@
         <div title="{{ value|join("\n") }}">
             {{ value|length }} errors
         </div>
-    {% elseif value|length == 0%}
+    {% elseif value|length == 0 %}
         0 errors
     {% else %}
         <div class="empty collection-empty">
