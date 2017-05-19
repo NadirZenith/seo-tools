@@ -1,0 +1,33 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% macro link_hierarchy_title(link) %}
+    {{ link.url }}
+    <small>#{{ link.id }}</small>
+{% endmacro %}
+
+{% macro link_hierarchy(link) %}
+    {% import _self as macro %}
+
+    {% if link.children is not empty %}
+        {{ macro.link_hierarchy_title(link) }}
+        <ul>
+            {% for children in link.children %}
+                <li>
+                    {{ macro.link_hierarchy(children) }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        {{ macro.link_hierarchy_title(link) }}
+    {% endif %}
+{% endmacro %}
+
+{% block main %}
+
+    <div class="hierarchy">
+        {% import _self as macro %}
+        {{ macro.link_hierarchy(root) }}
+    </div>
+
+{% endblock %}
+

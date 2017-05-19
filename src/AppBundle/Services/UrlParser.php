@@ -3,8 +3,6 @@
 namespace AppBundle\Services;
 
 use AppBundle\Entity\Link;
-use Buzz\Browser;
-use Buzz\Client\Curl;
 use Buzz\Message\Response;
 use Doctrine\ORM\EntityManager;
 use SimpleXMLElement;
@@ -13,23 +11,18 @@ use Symfony\Component\DomCrawler\Crawler;
 class UrlParser
 {
 
-    private $browser;
+    private $client;
 
     private $entityManager;
 
     /**
      * UrlParser constructor.
-     * @param Browser $buzz
+     * @param HttpClient $client
      * @param EntityManager $entityManager
      */
-    public function __construct(Browser $buzz, EntityManager $entityManager)
+    public function __construct(HttpClient $client, EntityManager $entityManager)
     {
-        $this->browser = $buzz;
-        $this->browser->setClient(new Curl());
-        $this->browser->getClient()->setTimeout(5000);
-        $this->browser->getClient()->setVerifyPeer(false);
-        $this->browser->getClient()->setIgnoreErrors(true);
-
+        $this->client = $client;
         $this->entityManager = $entityManager;
     }
 
@@ -43,10 +36,8 @@ class UrlParser
         $options = $this->initOptions($options);
 
         try {
-            /**
-             * @var Response $response
-             */
-//            $response = $this->browser->get($link->getUrl());
+            /** @var \GuzzleHttp\Psr7\Response $response */
+            $response = $this->client->get($link->getUrl());
 
             // if is root link, query for sitemap.xml
             if ($link->isRoot() && false) {
@@ -55,8 +46,7 @@ class UrlParser
                 /**
                  * @var Response $robotsRsp
                  */
-                $robotsRsp = $this->browser->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
-
+                $robotsRsp = $this->client->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
                 if ($robotsRsp->getStatusCode() === 200) {
                     d('robots exist');
 
@@ -97,12 +87,15 @@ class UrlParser
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
-            dd('Debug exception: ' . $e->getMessage());
+//            dd('Debug exception: ' . $e->getMessage());
             return;
         }
-        dd('fill link with response');
-        $link->setCheckedAt(new \DateTime());
+
         $link->setStatusCode($response->getStatusCode());
+        $link->setRedirects($this->client->getRedirects());
+        $link->setMeta('transferTime', $this->client->getTransferTime());
+        $link->setCheckedAt(new \DateTime());
+
 
         // if it is an external link, don't need to crawl more urls
         if ($link->getType() === Link::TYPE_EXTERNAL) {
@@ -110,8 +103,10 @@ class UrlParser
             return;
         }
 
-        $link->setResponse($response->getContent());
+        $link->setResponse($response->getBody()->getContents());
         $link->setResponseHeaders($response->getHeaders());
+
+        // crawler -----------------------
         $crawler = new Crawler($link->getResponse());
 
         // title
@@ -152,6 +147,7 @@ class UrlParser
         $nodes = $crawler->filter('a');
         $rawUrls = [];
         if ($nodes->count()) {
+            /** @var \DOMElement $node */
             foreach ($nodes as $node) {
                 $url = $node->getAttribute('href');
 
@@ -162,7 +158,9 @@ class UrlParser
                 $rawUrls[] = [
                     'url'   => $url,
                     'title' => $node->getAttribute('title'),
-                    'text'  => $node->textContent
+                    'text'  => $node->textContent,
+                    'line'  => $node->getLineNo(),
+                    'path'  => $node->getNodePath(),
                 ];
             }
         }
@@ -244,6 +242,9 @@ class UrlParser
      */
     private function isLinkInHierarchy(Link $link, Link $childLink)
     {
+        if (!$link->getId()) {
+            return false;
+        }
 
         $result = $this->entityManager->createQueryBuilder()
             ->select('l')

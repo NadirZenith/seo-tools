@@ -5,10 +5,9 @@ easy_admin:
             css:
                 - 'bundles/app/easy_admin_custom.css'
         menu:
-                - { label: 'menu.smoketest', route: 'app_smoketest_index' }
-                - { label: 'menu.users', entity: 'User', icon: 'users' }
-                - { label: 'menu.links', entity: 'Link', icon: 'link' }
-
+                - { label: 'menu.smoketest',  route: 'app_smoketest_index' }
+                - { label: 'menu.users',      entity: 'User', icon: 'users' }
+                - { label: 'menu.links',      entity: 'Link', icon: 'link' }
 
     entities:
         User:
@@ -55,14 +54,16 @@ easy_admin:
 #                max_results: 2000
                 actions:
                     - show
-                    - { name: "admin_link_children", label: "Children", "type": "route" }
+                    - { name: "admin_link_parse",     label: "Parse",     "type": "route" }
+                    - { name: "admin_link_report",    label: "Report",    "type": "route" }
+                    - { name: "admin_link_hierarchy", label: "Hierarchy", "type": "route" }
                 fields:
                     - url
                     - status
                     - checkedAt
                     - statusCode
-                    - { property: 'validation', template: 'field_array.html.twig' }
-                    - { property: 'rawUrls', template: 'raw_urls.html.twig' }
+                    - { property: 'validation',     template: 'field_array.html.twig' }
+                    - { property: 'rawUrls',        template: 'raw_urls.html.twig' }
             show:
                 fields:
                     - checkedAt
@@ -74,8 +75,8 @@ easy_admin:
                     - { property: 'parent'}
                     - { property: 'metas'}
                     - { property: 'responseHeaders'}
-                    - { property: 'robots', template: 'html_content.html.twig' }
-                    - { property: 'response', template: 'link_iframe_content.html.twig' }
-                    - { property: 'rawUrls', template: 'raw_urls.html.twig' }
-                    - { property: 'children', template: 'children_links.html.twig' }
+                    - { property: 'robots',       template: 'html_content.html.twig' }
+                    - { property: 'response',     template: 'link_iframe_content.html.twig' }
+                    - { property: 'rawUrls',      template: 'raw_urls.html.twig' }
+                    - { property: 'children',     template: 'children_links.html.twig' }
                     - { property: 'validation'}

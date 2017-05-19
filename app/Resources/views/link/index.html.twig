@@ -2,7 +2,7 @@
 
 {% block main %}
 
-    <h1>Children from {{ links.root.url }}</h1>
+    <h1>Report from {{ links.root.url }}</h1>
 
     <section>
         {#<h2>What's next?</h2>#}
@@ -49,7 +49,7 @@
                                                                href="#collapse{{ _unique_id }}"
                                                                aria-expanded="false"
                                                                aria-controls="collapse{{ _unique_id }}">
-                                                                #{{ _unique_id }} {{ link.url }}
+                                                                {{ link.url }}#{{ _unique_id }}
                                                                 <a href="{{ link.url }}"
                                                                    target="_blank"><i
                                                                             class="fa fa-external-link"></i></a>
@@ -73,11 +73,14 @@
                                                                 </small>
 
                                                                 {% if link.redirects %}
-                                                                    <small class="label pull-right2 bg-orange"
+                                                                    <small class="label bg-orange"
                                                                            title="has redirects">
                                                                         {{ link.redirects|length }}</small>
                                                                 {% endif %}
 
+                                                                {% if link.type == constant('AppBundle\\Entity\\Link::TYPE_EXTERNAL') %}
+                                                                    <small class="label pull-right bg-blue">External</small>
+                                                                {% endif %}
 
                                                             </a>
                                                         </h4>
@@ -85,6 +88,12 @@
                                                     <div id="collapse{{ _unique_id }}" class="panel-collapse collapse"
                                                          role="tabpanel" aria-labelledby="heading{{ _unique_id }}">
                                                         <div class="panel-body">
+                                                            {{ include('@EasyAdmin/default/field_string.html.twig', { value: link.statusMessage, view: 'show' }) }}
+                                                            <b>Metas</b>
+                                                            {{ include('easy_admin/field_array.html.twig', { value: link.metas, view: 'show' }) }}
+                                                            <b>Headers</b>
+                                                            {{ include('easy_admin/field_array.html.twig', { value: link.responseHeaders, view: 'show' }) }}
+
                                                         </div>
                                                     </div>
                                                 </div>

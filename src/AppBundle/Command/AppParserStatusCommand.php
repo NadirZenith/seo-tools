@@ -16,22 +16,43 @@ class AppParserStatusCommand extends ContainerAwareCommand
     {
         $this
             ->setName('app:parser:status')
-            ->setDescription('See links global status');
+            ->setDescription('See links status')
+            ->addArgument('id', InputArgument::OPTIONAL, 'Id from root link to see status')
+            ->addOption('list', null, InputOption::VALUE_NONE, 'List root links');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $input->getArguments();
+
         /**
          * @var EntityManager $manager
          */
         $manager = $this->getContainer()->get('doctrine')->getManager();
-        $waiting = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', Link::STATUS_WAITING)->getQuery()->getSingleScalarResult();
-        $parsed = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', Link::STATUS_PARSED)->getQuery()->getSingleScalarResult();
-        $skipped = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', Link::STATUS_SKIPPED)->getQuery()->getSingleScalarResult();
 
-        $output->writeln(sprintf("Waiting parser: %d links", $waiting));
-        $output->writeln(sprintf("Already parsed: %d links", $parsed));
-        $output->writeln(sprintf("Skipped parser: %d links", $skipped));
+        if ($input->getOption('list')) {
+            $roots = $manager->getRepository(Link::class)->createQueryBuilder('l')->where('l.parent IS NULL')->getQuery()->getResult();
+
+            foreach ($roots as $link) {
+                $output->writeln(sprintf("#%d %s", $link->getId(), $link->getUrl()));
+            }
+
+            return;
+        }
+
+        $id = (int)$input->getArgument('id');
+
+        $output->writeln(sprintf("Waiting parser: %d links", $this->getLinksCount($manager, Link::STATUS_WAITING, $id)));
+        $output->writeln(sprintf("Already parsed: %d links", $this->getLinksCount($manager, Link::STATUS_PARSED, $id)));
+        $output->writeln(sprintf("Skipped parser: %d links", $this->getLinksCount($manager, Link::STATUS_SKIPPED, $id)));
+    }
+
+    private function getLinksCount(EntityManager $manager, $status, $id = null)
+    {
+        $queryBuilder = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', $status);
+        if ($id) {
+            $queryBuilder->andWhere('l.root = :root')->setParameter('root', $id);
+        }
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 }

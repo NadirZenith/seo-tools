@@ -9,6 +9,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class LinkAdminController extends BaseAdminController
 {
 
+    /**
+     * @param string $entityClass
+     * @param string $sortDirection
+     * @param null $sortField
+     * @param null $dqlFilter
+     * @return QueryBuilder
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) ($dqlFilter)
+     */
     protected function createListQueryBuilder($entityClass, $sortDirection, $sortField = null, $dqlFilter = null)
     {
         /**

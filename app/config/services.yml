@@ -14,7 +14,7 @@ services:
 
     app.url_parser:
         class: AppBundle\Services\UrlParser
-        arguments: ['@buzz', '@doctrine.orm.default_entity_manager']
+        arguments: ['@app.guzzle.client', '@doctrine.orm.default_entity_manager']
 
     app.guzzle.client:
 #        class: GuzzleHttp\Client

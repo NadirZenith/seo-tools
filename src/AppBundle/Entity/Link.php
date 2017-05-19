@@ -12,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="link",
  *     uniqueConstraints={@ORM\UniqueConstraint(name="single_url_hierarchy", columns={"url", "root_id"})}
  * )
- * ORM\Table(name="link")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
  * @ORM\HasLifecycleCallbacks()
  */

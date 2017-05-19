@@ -2,6 +2,8 @@
 pre{ max-height: 300px;}
 textarea{ width: 90%; min-height: 200px; padding-left: 10px;}
 
+.hierarchy ul{margin-left: 4em}
+
 /* raw urls table */
 .raw_urls {max-height: 300px; overflow-y: scroll}
 .raw_urls th{text-align: center;}
