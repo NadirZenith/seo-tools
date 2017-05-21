@@ -4,7 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Link;
 use AppBundle\Form\SimpleRunType;
-use AppBundle\Services\UrlParser;
+use AppBundle\Services\LinkProcessor;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Session;
 use Buzz\Browser;
@@ -37,18 +37,7 @@ class DefaultController extends Controller
      */
     public function smokeTestAction(Request $request)
     {
-        $testUrls = array(
-            'https://www.schweppes.es/tonica/nuestras-tonicas/classic/soda',
-            'https://www.schweppes.es/cocteleria/jigger-cuchara-imperial-y-abridor-como-se-usan-correctamente'
-        );
-
-        $testUrls = array();
-
-        $form = $this->createForm(
-            SimpleRunType::class, null, array(
-                'test_data' => implode("\n", $testUrls)
-            )
-        );
+        $form = $this->createForm(SimpleRunType::class);
 
         $form->handleRequest($request);
 
@@ -310,9 +299,9 @@ class DefaultController extends Controller
     {
 
         /**
-         * @var UrlParser $parser
+         * @var LinkProcessor $processor
          */
-        $parser = $this->get('app.url_parser');
+        $processor = $this->get('app.link_processor');
         $manager = $this->getDoctrine()->getManager();
         $links = $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING]);
 
@@ -321,7 +310,7 @@ class DefaultController extends Controller
          */
         foreach ($links as $k => $link) {
             d(sprintf('%d. Start parsing url %s', ++$k, $link->getUrl()));
-            $parser->parse(
+            $processor->parse(
                 $link, [
 
                     'ignore_patterns' => '/^\/\_/'

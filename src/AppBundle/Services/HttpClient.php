@@ -31,11 +31,9 @@ class HttpClient extends Client
         $args[1][RequestOptions::ALLOW_REDIRECTS] = ['on_redirect' => $onRedirect];
         $args[1][RequestOptions::ON_STATS] = $onStats;
 
-        //        'on_stats' => function (TransferStats $stats) {
         $response = parent::__call($method, $args);
 
         return $response;
-        //        return $response->withAddedHeader(self::HISTORY_HEADER, json_encode($this->getRedirects()));
     }
 
     public function getRedirects()

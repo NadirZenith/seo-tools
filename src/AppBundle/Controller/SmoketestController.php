@@ -32,16 +32,16 @@ class SmoketestController extends Controller
 //            set_time_limit(0);
             $urls = array_values(explode("\r\n", $form->get('urls')->getData()));
 
-            $parser = $this->get('app.url_parser');
+            $processor = $this->get('app.link_processor');
             foreach ($urls as $url) {
                 $links[] = $link = new Link($url);
 
-                $parser->parse($link);
+                $processor->parse($link);
                 usleep(500);
             }
 
             return $this->render(
-                'link/index.html.twig', [
+                'link/report.html.twig', [
                     'links' => new LinkCollection($links)
                 ]
             );

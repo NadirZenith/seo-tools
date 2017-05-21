@@ -3,7 +3,7 @@
 namespace AppBundle\Command;
 
 use AppBundle\Entity\Link;
-use AppBundle\Services\UrlParser;
+use AppBundle\Services\LinkProcessor;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,9 +24,9 @@ class AppParserValidateCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
-         * @var UrlParser $parser
+         * @var LinkProcessor $processor
          */
-        //        $parser = $this->getContainer()->get('app.url_parser');
+        //        $processor = $this->getContainer()->get('app.url_parser');
 
         /**
          * @var EntityManager $manager
@@ -57,7 +57,7 @@ class AppParserValidateCommand extends ContainerAwareCommand
             exec($command, $out);
             $link->setValidation($out);
 
-            //            $parser->validate($link, []);
+            //            $processor->validate($link, []);
 
             $output->writeln(sprintf(" - problems found: %d", count($link->getValidation())));
 

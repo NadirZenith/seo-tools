@@ -12,8 +12,8 @@ services:
         tags:
           - { name: twig.extension }
 
-    app.url_parser:
-        class: AppBundle\Services\UrlParser
+    app.link_processor:
+        class: AppBundle\Services\LinkProcessor
         arguments: ['@app.guzzle.client', '@doctrine.orm.default_entity_manager']
 
     app.guzzle.client:

@@ -2,10 +2,10 @@
     {% if value is not empty %}
         <div class="children_links">
             {{ value|length }} links |
-            <a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, parent: item.id}) }}">Children
-                list</a> |
-            <a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, root: item.root.id}) }}">Root
-                list</a>
+            {#<a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, parent: item.id}) }}">Children#}
+                {#list</a> |#}
+            {#<a href="{{ path('easyadmin', {action: "list", entity: entity_config.name, root: item.root.id}) }}">Root#}
+                {#list</a>#}
 
             <table>
                 <thead>

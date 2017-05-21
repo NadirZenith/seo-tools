@@ -18,11 +18,11 @@ class LinkController extends Controller
      */
     public function parseAction($id)
     {
-        $parser = $this->get('app.url_parser');
+        $processor = $this->get('app.link_processor');
         $link = $this->getLink($id);
 
         d($link);
-        $parser->parse($link);
+        $processor->parse($link);
         dd($link);
     }
 
@@ -34,7 +34,7 @@ class LinkController extends Controller
         $links = $this->getDoctrine()->getRepository(Link::class)->findBy(['root' => $request->get('id')]);
 
         return $this->render(
-            'link/index.html.twig', [
+            'link/report.html.twig', [
                 'links' => new LinkCollection($links)
             ]
         );

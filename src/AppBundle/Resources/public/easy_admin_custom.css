@@ -20,4 +20,4 @@ textarea{ width: 90%; min-height: 200px; padding-left: 10px;}
  /* ex: tags and headers */
 .field_array{max-height: 300px; overflow-y: scroll}
 .field_array li{margin: 0}
-.field_array li span{float: left; min-width: 100px}
+/*.field_array li span{float: left; min-width: 100px}*/

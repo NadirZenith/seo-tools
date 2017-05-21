@@ -3,7 +3,7 @@
 namespace AppBundle\Command;
 
 use AppBundle\Entity\Link;
-use AppBundle\Services\UrlParser;
+use AppBundle\Services\LinkProcessor;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,9 +23,9 @@ class AppParserParseCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
-         * @var UrlParser $parser
+         * @var LinkProcessor $processor
          */
-        $parser = $this->getContainer()->get('app.url_parser');
+        $processor = $this->getContainer()->get('app.link_processor');
         /**
          * @var EntityManager $manager
          */
@@ -43,7 +43,7 @@ class AppParserParseCommand extends ContainerAwareCommand
          */
         foreach ($links as $k => $link) {
             $output->write(sprintf('%d/%d -> Start parsing url %s', ++$k, count($links), $link->getUrl()));
-            $parser->parse(
+            $processor->parse(
                 $link, [
                     'ignored_url_patterns' => [
                         //facebook

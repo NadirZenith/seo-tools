@@ -1,5 +1,6 @@
 {% extends "@EasyAdmin/default/layout.html.twig" %}
 
+{% block page_title %}Report{% endblock %}
 {% block main %}
 
     <h1>Report from {{ links.root.url }}</h1>
@@ -82,6 +83,9 @@
                                                                     <small class="label pull-right bg-blue">External</small>
                                                                 {% endif %}
 
+                                                                {% if link.status != constant('AppBundle\\Entity\\Link::STATUS_PARSED') %}
+                                                                    <small class="label pull-right bg-red">{{ link.status }}</small>
+                                                                {% endif %}
                                                             </a>
                                                         </h4>
                                                     </div>
@@ -93,6 +97,10 @@
                                                             {{ include('easy_admin/field_array.html.twig', { value: link.metas, view: 'show' }) }}
                                                             <b>Headers</b>
                                                             {{ include('easy_admin/field_array.html.twig', { value: link.responseHeaders, view: 'show' }) }}
+                                                            <b>Urls</b>
+                                                            {{ include('easy_admin/raw_urls.html.twig', { value: link.rawUrls, view: 'show' }) }}
+                                                            <b>Children</b>
+                                                            {{ include('easy_admin/children_links.html.twig', { value: link.children, view: 'show' }) }}
 
                                                         </div>
                                                     </div>

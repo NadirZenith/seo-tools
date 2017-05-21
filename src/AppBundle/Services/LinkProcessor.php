@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManager;
 use SimpleXMLElement;
 use Symfony\Component\DomCrawler\Crawler;
 
-class UrlParser
+class LinkProcessor
 {
 
     private $client;
