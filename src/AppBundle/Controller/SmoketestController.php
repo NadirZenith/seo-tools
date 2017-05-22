@@ -29,15 +29,14 @@ class SmoketestController extends Controller
 
         $links = [];
         if ($form->isSubmitted() && $form->isValid()) {
-//            set_time_limit(0);
-            $urls = array_values(explode("\r\n", $form->get('urls')->getData()));
-
             $processor = $this->get('app.link_processor');
-            foreach ($urls as $url) {
+            foreach ($form->get('urls')->getData() as $url) {
                 $links[] = $link = new Link($url);
+//                $links[] = $link = new Link("http://www.schweppes.dev");
+//                $links[] = $link = new Link("https://www.schweppes.es");
 
+//                d(sprintf("start processing %s", $link->getUrl()));
                 $processor->process($link);
-                usleep(500);
             }
 
             return $this->render(

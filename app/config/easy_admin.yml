@@ -68,6 +68,7 @@ easy_admin:
                 fields:
                     - checkedAt
                     - { property: 'url'}
+                    - { property: 'source'}
                     - { property: 'status'}
                     - { property: 'statusCode'}
                     - { property: 'redirects'}

@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tino
- * Date: 5/11/17
- * Time: 6:49 PM
- */
 
 namespace AppBundle\Services;
 
-class UrlParserOptions
+class LinkProcessorOptions
 {
 
     private $options = [

@@ -27,7 +27,10 @@ class Link
     // link type
     const TYPE_EXTERNAL = 'external';
     const TYPE_INTERNAL = 'internal';
-    const TYPE_SITEMAP = 'sitemap';
+
+    // link source
+    const SOURCE_HTML = 'html';
+    const SOURCE_SITEMAP = 'sitemap';
 
     /**
      * @var int
@@ -77,6 +80,13 @@ class Link
      * @ORM\Column(name="type", type="string", length=255, nullable=true)
      */
     private $type = Link::TYPE_INTERNAL;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="source", type="string", length=255)
+     */
+    private $source = Link::SOURCE_HTML;
 
     /**
      * @var string
@@ -135,9 +145,17 @@ class Link
     private $rawUrls;
 
     /**
+     * @var array
+     *
+     * @ORM\Column(name="raw_imgs", type="array", nullable=true)
+     */
+    private $rawImgs;
+
+    /**
      * @var Link
      *
      * @ORM\ManyToOne(targetEntity="Link", cascade={"persist"}, fetch="EAGER")
+     * @ORM\JoinColumn(onDelete="CASCADE") // allow delete root rows
      */
     private $root;
 
@@ -159,13 +177,14 @@ class Link
      * Link constructor.
      *
      * @param null $url
-     * @param string $type
+     * @param string $source
+     * @internal param string $type
      */
-    public function __construct($url = null, $type = self::TYPE_INTERNAL)
+    public function __construct($url = null, $source = self::SOURCE_HTML)
     {
         $this->children = new ArrayCollection();
         $this->setUrl($url);
-        $this->setType($type);
+        $this->setSource($source);
 
         $this->setRoot($this);
     }
@@ -504,17 +523,17 @@ class Link
     private function getLinkChildrenUrls(Link $link)
     {
         $urls = [];
-        if ($link) {
-            foreach ($link->getChildren()->toArray() as $link) {
-                array_push($urls, $link->getUrl());
-            }
+//        if ($link) {
+        foreach ($link->getChildren()->toArray() as $link) {
+            array_push($urls, $link->getUrl());
+//            }
         }
 
         return $urls;
     }
 
     /**
-     * @return array Array of childre urls
+     * @return array Array of children urls
      */
     public function getChildrenUrls()
     {
@@ -605,5 +624,37 @@ class Link
     public function setRobots($robots)
     {
         $this->robots = $robots;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawImgs()
+    {
+        return $this->rawImgs;
+    }
+
+    /**
+     * @param array $rawImgs
+     */
+    public function setRawImgs($rawImgs)
+    {
+        $this->rawImgs = $rawImgs;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param string $source
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
     }
 }

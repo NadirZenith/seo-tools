@@ -6,6 +6,7 @@ use AppBundle\Entity\Link;
 use AppBundle\Services\LinkProcessor;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,6 +18,7 @@ class AppParserParseCommand extends ContainerAwareCommand
         $this
             ->setName('app:parser:parse')
             ->setDescription('Parse waiting links')
+            ->addArgument('id', InputArgument::OPTIONAL, 'Id from link to see status')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Test mode, do not save');
     }
 

@@ -16,33 +16,66 @@ class HttpClient extends Client
     private $redirects;
     private $transferTime;
 
+    /**
+     * @param $method
+     * @param $args
+     * @return \GuzzleHttp\Promise\PromiseInterface|mixed|ResponseInterface
+     */
     public function __call($method, $args)
     {
-        $this->redirects = [];
-        $onRedirect = function (RequestInterface $request, ResponseInterface $response, UriInterface $uri) {
-            $this->redirects[][$response->getStatusCode()] = (string)$uri;
-        };
 
-        $this->transferTime = null;
-        $onStats = function (TransferStats $stats) {
-            $this->transferTime = $stats->getTransferTime();
-        };
-
-        $args[1][RequestOptions::ALLOW_REDIRECTS] = ['on_redirect' => $onRedirect];
-        $args[1][RequestOptions::ON_STATS] = $onStats;
+        $args = $this->setUpRedirectWatcher($args);
+        $args = $this->setUpTransferTimeWatcher($args);
 
         $response = parent::__call($method, $args);
 
         return $response;
     }
 
+
+    /**
+     * @return array
+     */
     public function getRedirects()
     {
         return $this->redirects;
     }
 
+    /**
+     * @return float|null
+     */
     public function getTransferTime()
     {
         return $this->transferTime;
+    }
+
+    /**
+     * @param $args
+     * @return array
+     */
+    private function setUpRedirectWatcher($args)
+    {
+        $this->redirects = [];
+        $onRedirect = function (RequestInterface $request, ResponseInterface $response, UriInterface $uri) {
+            $this->redirects[][$response->getStatusCode()] = (string)$uri;
+        };
+        $args[1][RequestOptions::ALLOW_REDIRECTS] = ['on_redirect' => $onRedirect];
+
+        return $args;
+    }
+
+    /**
+     * @param $args
+     * @return array
+     */
+    private function setUpTransferTimeWatcher($args)
+    {
+        $this->transferTime = null;
+        $onStats = function (TransferStats $stats) {
+            $this->transferTime = $stats->getTransferTime();
+        };
+        $args[1][RequestOptions::ON_STATS] = $onStats;
+
+        return $args;
     }
 }
