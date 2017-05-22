@@ -22,7 +22,7 @@ class LinkController extends Controller
         $link = $this->getLink($id);
 
         d($link);
-        $processor->parse($link);
+        $processor->process($link);
         dd($link);
     }
 

@@ -43,7 +43,7 @@ class AppParserParseCommand extends ContainerAwareCommand
          */
         foreach ($links as $k => $link) {
             $output->write(sprintf('%d/%d -> Start parsing url %s', ++$k, count($links), $link->getUrl()));
-            $processor->parse(
+            $processor->process(
                 $link, [
                     'ignored_url_patterns' => [
                         //facebook

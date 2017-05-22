@@ -310,7 +310,7 @@ class DefaultController extends Controller
          */
         foreach ($links as $k => $link) {
             d(sprintf('%d. Start parsing url %s', ++$k, $link->getUrl()));
-            $processor->parse(
+            $processor->process(
                 $link, [
 
                     'ignore_patterns' => '/^\/\_/'

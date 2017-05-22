@@ -80,7 +80,8 @@
                                                                 {% endif %}
 
                                                                 {% if link.type == constant('AppBundle\\Entity\\Link::TYPE_EXTERNAL') %}
-                                                                    <small class="label pull-right bg-blue">External</small>
+                                                                    <small class="label pull-right bg-blue">External
+                                                                    </small>
                                                                 {% endif %}
 
                                                                 {% if link.status != constant('AppBundle\\Entity\\Link::STATUS_PARSED') %}
@@ -101,7 +102,8 @@
                                                             {{ include('easy_admin/raw_urls.html.twig', { value: link.rawUrls, view: 'show' }) }}
                                                             <b>Children</b>
                                                             {{ include('easy_admin/children_links.html.twig', { value: link.children, view: 'show' }) }}
-
+                                                            <b>Redirects</b>
+                                                            {{ include('easy_admin/field_array.html.twig', { value: link.redirects, view: 'show' }) }}
                                                         </div>
                                                     </div>
                                                 </div>

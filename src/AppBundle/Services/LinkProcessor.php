@@ -30,7 +30,7 @@ class LinkProcessor
      * @param Link $link
      * @param array|UrlParserOptions $options
      */
-    public function parse(Link $link, $options = [])
+    public function process(Link $link, $options = [])
     {
 
         $options = $this->initOptions($options);

@@ -36,7 +36,7 @@ class SmoketestController extends Controller
             foreach ($urls as $url) {
                 $links[] = $link = new Link($url);
 
-                $processor->parse($link);
+                $processor->process($link);
                 usleep(500);
             }
 
