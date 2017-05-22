@@ -34,5 +34,4 @@ class SimpleRunType extends AbstractType
             )//
         ;
     }
-
 }

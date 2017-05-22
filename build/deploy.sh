@@ -107,6 +107,8 @@ else
     display_success "* dump() calls not found in app/Resources/views"
 fi
 
+# auto fixer example
+#phpcbf=`bin/phpcbf --standard=build/phpcs.xml src/`
 phpcs_summary=`bin/phpcs --standard=build/phpcs.xml -n --report=summary src/`
 if [ ! -z "$phpcs_summary" ]
 then
