@@ -32,7 +32,9 @@ class SitemapAnalyser implements AnalyserInterface
 
         // if is root link, query for sitemap.xml
         if ($link->isRoot()) {
-            $sitemapLink = new Link(sprintf("%s://%s/sitemap.xml", $link->getScheme(), $link->getHost()), Link::SOURCE_SITEMAP);
+//            $sitemapLink = new Link(sprintf("%s://%s/sitemap.xml", $link->getScheme(), $link->getHost()), Link::SOURCE_SITEMAP);
+            $sitemapLink = $link->createChild(sprintf("%s://%s/sitemap.xml", $link->getScheme(), $link->getHost()));
+            $sitemapLink->setSource(Link::SOURCE_SITEMAP);
 
             // try to get sitemap url from robots if exist
             $this->analyseRobots($link, $sitemapLink);

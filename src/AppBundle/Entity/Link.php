@@ -657,4 +657,27 @@ class Link
     {
         $this->source = $source;
     }
+
+    /**
+     * @param string $url
+     * @return Link
+     */
+    public function createChild($url)
+    {
+        $link = new self($url, $this->getSource());
+
+        // check if child url is relative and has a path (ex: is not a #hash url)
+        if (!$link->getHost() && $link->getPath()) {
+            // child link url is relative, prepend link scheme and host
+
+            $link->setUrl(sprintf("%s://%s%s", $this->getScheme(), $this->getHost(), $link->getPath()))
+                ->setType(Link::TYPE_INTERNAL);
+        }
+
+        if ($this->getHost() !== $link->getHost()) {
+            $link->setType(Link::TYPE_EXTERNAL);
+        }
+
+        return $link;
+    }
 }

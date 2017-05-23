@@ -30,22 +30,10 @@ class ChildLinksAnalyser implements AnalyserInterface
     {
 
         foreach ($link->getRawUrls() as $url) {
-            $childLink = new Link($url['url'], $link->getSource());
+            $childLink = $link->createChild($url['url']);
 
             if (!$this->isLinkValid($childLink, $options)) {
                 continue;
-            }
-
-            // check if child url is relative and has a path (ex: is not a #hash url)
-            if (!$childLink->getHost() && $childLink->getPath()) {
-                // child link url is relative, prepend link scheme and host
-
-                $childLink->setUrl(sprintf("%s://%s%s", $link->getScheme(), $link->getHost(), $childLink->getPath()))
-                    ->setType(Link::TYPE_INTERNAL);
-            }
-
-            if ($link->getHost() !== $childLink->getHost()) {
-                $childLink->setType(Link::TYPE_EXTERNAL);
             }
 
             if (!$this->isLinkInHierarchy($link, $childLink)) {
@@ -105,6 +93,7 @@ class ChildLinksAnalyser implements AnalyserInterface
     private function isLinkValid($childLink, LinkProcessorOptions $options)
     {
 
+
         // mailto urls
         if (in_array($childLink->getScheme(), ['mailto'])) {
             return false;
@@ -119,6 +108,10 @@ class ChildLinksAnalyser implements AnalyserInterface
         if ($this->matchPatterns($childLink->getUrl(), $options->getIgnoredUrlPatterns())) {
             return false;
         }
+
+        if (!filter_var($childLink->getUrl(), FILTER_VALIDATE_URL, FILTER_FLAG_HOST_REQUIRED | FILTER_FLAG_SCHEME_REQUIRED)) {
+            return false;
+        };
 
         return true;
     }

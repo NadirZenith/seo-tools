@@ -81,7 +81,7 @@ class LinkProcessor
             }
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
-            $link->setStatusMessage(sprintf("Browser Exception: %s", $e->getMessage()));
+            $link->setStatusMessage(sprintf('Browser exception: %s in %s:%d ', $e->getMessage(), $e->getFile(), $e->getLine()));
 //            dd(sprintf('Debug exception: %s in %s:%d ', $e->getMessage(), $e->getFile(), $e->getLine()));
             return;
         }
