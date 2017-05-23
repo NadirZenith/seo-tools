@@ -39,6 +39,9 @@ class SimpleRunType extends AbstractType
         $builder->get('urls')
             ->addModelTransformer(new CallbackTransformer(
                 function ($urlsAsArray = []) {
+                    if (is_string($urlsAsArray)) {
+                        return $urlsAsArray;
+                    }
                     // transform into string
                     return !$urlsAsArray ? '' : implode(self::NEW_LINE, $urlsAsArray);
                 },

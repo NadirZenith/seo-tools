@@ -93,18 +93,34 @@
                                                     <div id="collapse{{ _unique_id }}" class="panel-collapse collapse"
                                                          role="tabpanel" aria-labelledby="heading{{ _unique_id }}">
                                                         <div class="panel-body">
-                                                            <b>Status Message</b>
-                                                            {{ include('@EasyAdmin/default/field_string.html.twig', { value: link.statusMessage, view: 'show' }) }}
-                                                            <b>Metas</b>
-                                                            {{ include('easy_admin/field_array.html.twig', { value: link.metas, view: 'show' }) }}
-                                                            <b>Headers</b>
-                                                            {{ include('easy_admin/field_array.html.twig', { value: link.responseHeaders, view: 'show' }) }}
-                                                            <b>Urls</b>
-                                                            {{ include('easy_admin/raw_urls.html.twig', { value: link.rawUrls, view: 'show' }) }}
-                                                            <b>Children</b>
-                                                            {{ include('easy_admin/children_links.html.twig', { value: link.children, view: 'show' }) }}
-                                                            <b>Redirects</b>
-                                                            {{ include('easy_admin/field_array.html.twig', { value: link.redirects, view: 'show' }) }}
+                                                            <div>
+                                                                <b>Status Message</b>
+                                                                {{ include('@EasyAdmin/default/field_string.html.twig', { value: link.statusMessage, view: 'show' }) }}
+                                                            </div>
+                                                            <div>
+                                                                <b>Metas</b>
+                                                                {{ include('easy_admin/field_array.html.twig', { value: link.metas, view: 'show' }) }}
+                                                            </div>
+                                                            <div>
+                                                                <b>Headers</b>
+                                                                {{ include('easy_admin/field_array.html.twig', { value: link.responseHeaders, view: 'show' }) }}
+                                                            </div>
+                                                            <div>
+                                                                <b>Urls</b>
+                                                                {{ include('easy_admin/raw_urls.html.twig', { value: link.rawUrls, view: 'show' }) }}
+                                                            </div>
+                                                            <div>
+                                                                <b>Children</b>
+                                                                {{ include('easy_admin/children_links.html.twig', { value: link.children, view: 'show' }) }}
+                                                            </div>
+                                                            <div>
+                                                                <b>Redirects</b>
+                                                                {{ include('easy_admin/field_array.html.twig', { value: link.redirects, view: 'show' }) }}
+                                                            </div>
+                                                            <div>
+                                                                <b>Robots</b>
+                                                                {{ include('easy_admin/html_content.html.twig', { value: link.robots, view: 'show' }) }}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

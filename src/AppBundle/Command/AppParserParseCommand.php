@@ -32,7 +32,7 @@ class AppParserParseCommand extends ContainerAwareCommand
          * @var EntityManager $manager
          */
         $manager = $this->getContainer()->get('doctrine')->getManager();
-        $links = $manager->getRepository(Link::class)->findBy(array('status' => Link::STATUS_WAITING));
+        $links = $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING]);
 
         if (!$links) {
             $output->writeln('No waiting links');
@@ -45,9 +45,9 @@ class AppParserParseCommand extends ContainerAwareCommand
          */
         foreach ($links as $k => $link) {
             $output->write(sprintf('%d/%d -> Start parsing url %s', ++$k, count($links), $link->getUrl()));
-            $processor->process(
+            $status = $processor->process(
                 $link, [
-                    'ignored_url_patterns' => [
+                    'ignored_url_patterns'  => [
                         //facebook
                         '/^http:\/\/www\.facebook\.com\/sharer\.php/',
                         '/^http(s)?:\/\/www\.facebook\.com/',
@@ -69,7 +69,19 @@ class AppParserParseCommand extends ContainerAwareCommand
             );
 
             $output->writeln(sprintf(" - status: %d", $link->getStatusCode()));
-            $output->writeln(sprintf("Found %d new urls \n    %s \n", count($link->getChildrenUrls()), implode("\n    ", $link->getChildrenUrls())));
+
+            if ($status) {
+                if (Link::TYPE_EXTERNAL === $link->getType()) {
+                    $output->writeln(sprintf("    Type %s\n", Link::TYPE_EXTERNAL));
+                }
+                if (Link::TYPE_EXTERNAL !== $link->getType()) {
+                    $output->writeln(sprintf("    Found %d new urls: \n    %s\n", count($link->getChildrenUrls()), implode("\n    ", $link->getChildrenUrls())));
+                }
+            }
+
+            if (!$status) {
+                $output->writeln(sprintf("    Status message: %s\n", $link->getStatusMessage()));
+            }
 
             $manager->persist($link);
 

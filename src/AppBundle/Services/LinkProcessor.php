@@ -53,6 +53,7 @@ class LinkProcessor
     /**
      * @param Link $link
      * @param array|LinkProcessorOptions $options
+     * @return bool
      */
     public function process(Link $link, $options = [])
     {
@@ -83,10 +84,12 @@ class LinkProcessor
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf('Browser exception: %s in %s:%d ', $e->getMessage(), $e->getFile(), $e->getLine()));
 //            dd(sprintf('Debug exception: %s in %s:%d ', $e->getMessage(), $e->getFile(), $e->getLine()));
-            return;
+            return false;
         }
 
         $link->setStatus(Link::STATUS_PARSED);
+
+        return true;
     }
 
     /**

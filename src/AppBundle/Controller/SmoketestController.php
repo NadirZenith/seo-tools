@@ -46,37 +46,12 @@ class SmoketestController extends Controller
             );
         }
 
+        $form->get('urls')->setData(['http://www.schweppes.dev', 'https://www.schweppes.es']);
         return $this->render(
             'smoketest/index.html.twig', [
                 'form'  => $form->createView(),
                 'links' => new LinkCollection($links)
             ]
         );
-    }
-
-    /**
-     * @Route("/dev")
-     */
-    public function devAction()
-    {
-
-        $client = $this->get('app.guzzle.client');
-        $url = 'http://www.schweppes.dev/cocteleria/ginger';
-        $url = 'http://www.schweppes.dev/es/historia.html';
-        $response = $client->get($url);
-        d($response->getHeaders());
-        d($response->getStatusCode());
-        d($response->getBody()->getContents());
-
-        //        $redirectUriHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER); // retrieve Redirect URI history
-        //        $redirectCodeHistory = $response->getHeader('X-Guzzle-Redirect-Status-History'); // retrieve Redirect HTTP Status history
-        //        array_push($redirectCodeHistory, $response->getStatusCode());
-
-        //        d($redirectUriHistory);
-        //        d($redirectCodeHistory);
-
-        dd($client->getRedirects());
-
-        d($response->getBody()->getContents());
     }
 }

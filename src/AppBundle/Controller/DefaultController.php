@@ -325,4 +325,26 @@ class DefaultController extends Controller
         }
         dd($links);
     }
+
+
+    /**
+     * @Route("/dev")
+     */
+    public function devAction()
+    {
+
+        /**
+         * @var LinkProcessor $processor
+         */
+        $processor = $this->get('app.link_processor');
+        $manager = $this->getDoctrine()->getManager();
+
+        $link = $manager->getRepository(Link::class)->find(2);
+        $processor->process($link);
+        d($link);
+
+        $link = $manager->getRepository(Link::class)->find(3);
+        $processor->process($link);
+        dd($link);
+    }
 }
