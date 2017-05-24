@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AppParserStatusCommand extends ContainerAwareCommand
 {
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
         $this
@@ -21,6 +24,9 @@ class AppParserStatusCommand extends ContainerAwareCommand
             ->addOption('list', null, InputOption::VALUE_NONE, 'List root links');
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /**
@@ -45,6 +51,12 @@ class AppParserStatusCommand extends ContainerAwareCommand
         $output->writeln(sprintf("Skipped parser: %d links", $this->getLinksCount($manager, Link::STATUS_SKIPPED, $id)));
     }
 
+    /**
+     * @param EntityManager $manager
+     * @param $status
+     * @param null $id
+     * @return mixed
+     */
     private function getLinksCount(EntityManager $manager, $status, $id = null)
     {
         $queryBuilder = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', $status);

@@ -5,10 +5,11 @@ namespace AppBundle\Services;
 use AppBundle\Analyser\AnalyserInterface;
 use AppBundle\Analyser\ChildLinksAnalyser;
 use AppBundle\Analyser\RobotsAnalyser;
-use AppBundle\Analyser\SitemapAnalyser;
-use AppBundle\Analyser\StandardHtmlAnalyser;
+use AppBundle\Analyser\DefaultSitemapParser;
+use AppBundle\Analyser\DefaultHtmlParser;
 use AppBundle\Entity\Link;
 use Doctrine\ORM\EntityManager;
+use GuzzleHttp\Psr7\Response;
 
 class LinkProcessor
 {
@@ -32,14 +33,14 @@ class LinkProcessor
         $this->client = $client;
 
         // analyse tags (metas, a, imgs, etc...)
-        $this->addAnalyser(new StandardHtmlAnalyser());
+        $this->addAnalyser(new DefaultHtmlParser($client, $entityManager));
 
         // customs extra
         $this->addAnalyser(new RobotsAnalyser($client));
-        $this->addAnalyser(new SitemapAnalyser($client));
+        $this->addAnalyser(new DefaultSitemapParser($client, $entityManager));
 
         // convert previous urls into links
-        $this->addAnalyser(new ChildLinksAnalyser($entityManager));
+//        $this->addAnalyser(new ChildLinksAnalyser($entityManager));
     }
 
     /**
@@ -64,22 +65,7 @@ class LinkProcessor
             /** @var \GuzzleHttp\Psr7\Response $response */
             $response = $this->client->get($link->getUrl());
 
-            $link->setCheckedAt(new \DateTime());
-            $link->setRedirects($this->client->getRedirects());
-            $link->setMeta('transferTime', $this->client->getTransferTime());
-
-            $link->setResponseHeaders($response->getHeaders());
-            $link->setStatusCode($response->getStatusCode());
-            $link->setResponse($response->getBody()->getContents());
-
-            foreach ($this->analysers as $analyser) {
-                $analyser->analyse($link, $response, $options);
-
-                // if it is an external link, don't need to analyse more
-                if ($link->getType() === Link::TYPE_EXTERNAL) {
-                    break;
-                }
-            }
+            $this->processResponse($link, $response, $options);
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf('Browser exception: %s in %s:%d ', $e->getMessage(), $e->getFile(), $e->getLine()));
@@ -107,5 +93,26 @@ class LinkProcessor
         }
 
         throw new \InvalidArgumentException(sprintf("Url parser accepts an array or an UrlParserOptions, %s given.", gettype($options)));
+    }
+
+    private function processResponse(Link $link, Response $response, LinkProcessorOptions $options)
+    {
+
+        $link->setCheckedAt(new \DateTime());
+        $link->setRedirects($this->client->getRedirects());
+        $link->setMeta('transferTime', $this->client->getTransferTime());
+
+        $link->setResponseHeaders($response->getHeaders());
+        $link->setStatusCode($response->getStatusCode());
+        $link->setResponse($response->getBody()->getContents());
+
+        foreach ($this->analysers as $analyser) {
+            $analyser->analyse($link, $response, $options);
+
+            // if it is an external link, don't need to analyse more
+            if ($link->getType() === Link::TYPE_EXTERNAL) {
+                break;
+            }
+        }
     }
 }

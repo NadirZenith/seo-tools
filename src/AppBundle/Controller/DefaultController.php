@@ -332,6 +332,15 @@ class DefaultController extends Controller
      */
     public function devAction()
     {
+        $client = $this->get('app.guzzle.client');
+
+        //$resp = $client->get('http://www.schweppes.dev/sitemap.xml');//header[Content-Type = text/xml]
+//        $resp = $client->get('http://www.schweppes.dev/robots.txt');//header[Content-Type = text/plain]
+        //$resp = $client->get('http://www.schweppes.dev/');//header[Content-Type = text/html; charset=UTF8]
+        $resp = $client->get('http://static.schweppes.dev/assets/images/Schweppes-logo.png?260417.1');//header[Content-Type = image/png]
+
+        d($client);
+        dd($resp);
 
         /**
          * @var LinkProcessor $processor

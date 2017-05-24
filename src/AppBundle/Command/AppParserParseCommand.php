@@ -32,7 +32,8 @@ class AppParserParseCommand extends ContainerAwareCommand
          * @var EntityManager $manager
          */
         $manager = $this->getContainer()->get('doctrine')->getManager();
-        $links = $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING]);
+
+        $links = $this->getLinks($input->getArgument('id'), $manager);
 
         if (!$links) {
             $output->writeln('No waiting links');
@@ -75,7 +76,7 @@ class AppParserParseCommand extends ContainerAwareCommand
                     $output->writeln(sprintf("    Type %s\n", Link::TYPE_EXTERNAL));
                 }
                 if (Link::TYPE_EXTERNAL !== $link->getType()) {
-                    $output->writeln(sprintf("    Found %d new urls: \n    %s\n", count($link->getChildrenUrls()), implode("\n    ", $link->getChildrenUrls())));
+                    $output->writeln(sprintf("    Found %d new urls: \n        %s\n", count($link->getChildrenUrls()), implode("\n        ", $link->getChildrenUrls())));
                 }
             }
 
@@ -96,5 +97,15 @@ class AppParserParseCommand extends ContainerAwareCommand
         }
 
         $output->writeln(sprintf("Finished parsing %d links", count($links)));
+    }
+
+    private function getLinks($id, EntityManager $manager)
+    {
+
+        if ($id) {
+            return $manager->getRepository(Link::class)->findBy(['id' => $id]);
+        }
+
+        return $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING]);
     }
 }

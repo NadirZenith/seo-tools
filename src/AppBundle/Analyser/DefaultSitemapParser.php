@@ -8,18 +8,8 @@ use AppBundle\Services\LinkProcessorOptions;
 use GuzzleHttp\Psr7\Response;
 use SimpleXMLElement;
 
-class SitemapAnalyser implements AnalyserInterface
+class DefaultSitemapParser extends BaseParser implements AnalyserInterface
 {
-    private $client;
-
-    /**
-     * SitemapAnalyser constructor.
-     * @param HttpClient $client
-     */
-    public function __construct(HttpClient $client)
-    {
-        $this->client = $client;
-    }
 
     /**
      * @param Link $link
@@ -44,8 +34,12 @@ class SitemapAnalyser implements AnalyserInterface
             return;
         };
 
+
         // if is sitemap source link, find links
-        if (Link::SOURCE_SITEMAP === $link->getSource()) {
+        if (strpos($link->getResponseHeader('Content-Type'), 'text/xml') !== false) {
+            $link->setSource(Link::SOURCE_SITEMAP);
+
+//        if (Link::SOURCE_SITEMAP === $link->getSource()) {
             $key = 'url';
 
             $sitemapXml = new SimpleXmlElement($link->getResponse());
@@ -56,10 +50,17 @@ class SitemapAnalyser implements AnalyserInterface
 
             $rawUrls = [];
             foreach ($sitemapXml->$key as $url) {
+                $url = strval($url->loc);
                 $rawUrls[] = [
-                    'url' => strval($url->loc)
+                    'url'        => $url,
+                    'lastmod'    => @strval($url->lastmod),
+                    'changefreq' => @strval($url->changefreq),
+                    'priority'   => @strval($url->priority),
                 ];
+
+                $this->createLinkChildren($link, $url, $options);
             }
+
             $link->setRawUrls($rawUrls);
         }
     }

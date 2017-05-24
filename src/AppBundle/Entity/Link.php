@@ -18,19 +18,26 @@ use Doctrine\ORM\Mapping as ORM;
 class Link
 {
 
-    // link status
+    /**
+     * Link status for processor
+     */
     const STATUS_PARSED = 'parsed';
     const STATUS_WAITING = 'waiting';
     const STATUS_SKIPPED = 'skipped';
     const STATUS_ERROR = 'error';
 
-    // link type
-    const TYPE_EXTERNAL = 'external';
-    const TYPE_INTERNAL = 'internal';
+    /**
+     * Type of Link in relation with parent
+     */
+    const TYPE_EXTERNAL = 'external'; // link is in another domain
+    const TYPE_INTERNAL = 'internal'; // lnk is in the same domain as parent
 
-    // link source
-    const SOURCE_HTML = 'html';
-    const SOURCE_SITEMAP = 'sitemap';
+    /**
+     * Source of this link
+     */
+    const SOURCE_HTML = 'html'; // comes from html (text/html)
+    const SOURCE_SITEMAP = 'sitemap'; // comes from a sitemap (text/xml)
+    const SOURCE_ROBOTS = 'robots'; // comes from a robot (text/plain)
 
     /**
      * @var int
@@ -128,7 +135,10 @@ class Link
      *
      * @ORM\Column(name="metas", type="array", nullable=true)
      */
-    private $metas;
+    private $metas = [
+        'response_headers' => null,
+        'link_urls'        => null
+    ];
 
     /**
      * @var array
@@ -592,6 +602,19 @@ class Link
     public function getResponseHeaders()
     {
         return $this->responseHeaders;
+    }
+
+    /**
+     * @param null $key
+     * @return array|false|string
+     */
+    public function getResponseHeader($key = null)
+    {
+        if (!isset($this->responseHeaders[$key])) {
+            return false;
+        }
+
+        return count($this->responseHeaders[$key]) > 1 ? $this->responseHeaders[$key] : reset($this->responseHeaders[$key]);
     }
 
     /**

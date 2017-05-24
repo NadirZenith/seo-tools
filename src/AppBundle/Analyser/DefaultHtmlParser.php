@@ -7,7 +7,7 @@ use AppBundle\Services\LinkProcessorOptions;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\DomCrawler\Crawler;
 
-class StandardHtmlAnalyser implements AnalyserInterface
+class DefaultHtmlParser extends BaseParser implements AnalyserInterface
 {
 
     /**
@@ -17,6 +17,10 @@ class StandardHtmlAnalyser implements AnalyserInterface
      */
     public function analyse(Link $link, Response $response, LinkProcessorOptions $options)
     {
+
+        if (strpos($link->getResponseHeader('Content-Type'), 'text/html') === false) {
+            return;
+        }
 
         $crawler = new Crawler($link->getResponse());
 
@@ -49,6 +53,8 @@ class StandardHtmlAnalyser implements AnalyserInterface
                     'line'  => $node->getLineNo(),
                     'path'  => $node->getNodePath(),
                 ];
+
+                $this->createLinkChildren($link, $url, $options);
             }
         }
         $link->setRawUrls($rawUrls);
