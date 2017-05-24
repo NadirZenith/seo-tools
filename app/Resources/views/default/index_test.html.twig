@@ -4,7 +4,7 @@
     <div id="wrapper">
         <div id="container">
             <div id="welcome">
-                <h1><span>Welcome to</span> SmokeTest Tool with
+                <h1><span>Welcome to</span> Seo Tool with
                     Symfony {{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</h1>
             </div>
 
@@ -19,10 +19,11 @@
                 <ul>
                     <li><a href="/discover">Discover</a></li>
                     <li><a href="/discover" title="skip repeated">Discover</a></li>
-                    <li><a href="/fail">Fail</a></li>
+                    <li><a href="/fail404">Discover404</a></li>
                     <li><a href="{{ asset('/some/file.pdf') }}">Pdf same domain</a></li>
-                    <li><a href="http://static.smoketest.dev{{ asset('/some/file.pdf') }}">Pdf other domain</a></li>
-                    <li><a href="http://static.smoketest.dev{{ asset('/some/file.pdf') }}"  title="skip repeated">Same Pdf other domain</a></li>
+                    <li><a href="http://static.seo-tools.dev{{ asset('/some/file.pdf') }}">Pdf other domain</a></li>
+                    <li><a href="http://static.seo-tools.dev{{ asset('/some/file.pdf') }}"  title="skip repeated">Same Pdf other domain</a></li>
+                    <li><a href="http://www.schweppes.dev">external</a></li>
                     <li><a href="/index/slug">Slug page</a></li>
                     {% if app.request.get('slug') %}
                         <li><a href="/index/other_slug">Other slug page</a></li>

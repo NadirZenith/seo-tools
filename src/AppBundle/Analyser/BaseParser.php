@@ -39,6 +39,9 @@ class BaseParser
      */
     protected function createLinkChildren(Link $link, $url, LinkProcessorOptions $options)
     {
+        if(strpos($url, 'mailto:', 0) !== false){
+            return false;
+        }
 
         $childLink = $link->createChild($url);
 
@@ -55,11 +58,6 @@ class BaseParser
      */
     private function isLinkValid(Link $childLink, LinkProcessorOptions $options)
     {
-
-        // mailto urls
-        if (in_array($childLink->getScheme(), ['mailto'])) {
-            return false;
-        }
 
         // skip ignored paths urls
         if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
