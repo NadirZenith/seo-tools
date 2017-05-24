@@ -10,6 +10,7 @@ use AppBundle\Analyser\DefaultHtmlParser;
 use AppBundle\Entity\Link;
 use Doctrine\ORM\EntityManager;
 use GuzzleHttp\Psr7\Response;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LinkProcessor
 {
@@ -32,12 +33,14 @@ class LinkProcessor
     {
         $this->client = $client;
 
-        // analyse tags (metas, a, imgs, etc...)
-        $this->addAnalyser(new DefaultHtmlParser($client, $entityManager));
-
         // customs extra
-        $this->addAnalyser(new RobotsAnalyser($client));
-        $this->addAnalyser(new DefaultSitemapParser($client, $entityManager));
+        $this->addAnalyser(new RobotsAnalyser($entityManager));
+
+        $this->addAnalyser(new DefaultSitemapParser($entityManager));
+
+        // analyse tags (metas, a, imgs, etc...)
+        $this->addAnalyser(new DefaultHtmlParser($entityManager));
+
 
         // convert previous urls into links
 //        $this->addAnalyser(new ChildLinksAnalyser($entityManager));
@@ -48,12 +51,13 @@ class LinkProcessor
      */
     public function addAnalyser(AnalyserInterface $analyser)
     {
-        array_push($this->analysers, $analyser);
+        $this->analysers[$analyser->getName()] = $analyser;
+//        array_push($this->analysers, $analyser);
     }
 
     /**
      * @param Link $link
-     * @param array|LinkProcessorOptions $options
+     * @param array $options
      * @return bool
      */
     public function process(Link $link, $options = [])
@@ -80,22 +84,31 @@ class LinkProcessor
 
     /**
      * @param $options
-     * @return LinkProcessorOptions
+     * @return array
      */
     private function initOptions($options)
     {
-        if ($options instanceof LinkProcessorOptions) {
-            return $options;
-        }
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'parsers'               => [RobotsAnalyser::NAME, DefaultSitemapParser::NAME, DefaultHtmlParser::NAME],
+            'ignored_url_patterns'  => [],
+            'ignored_path_patterns' => []
+        ]);
 
-        if (is_array($options)) {
-            return new LinkProcessorOptions($options);
-        }
+        $resolver->setAllowedTypes('ignored_url_patterns', ['array']);
+        $resolver->setAllowedTypes('ignored_path_patterns', ['array']);
+        $options = $resolver->resolve($options);
 
-        throw new \InvalidArgumentException(sprintf("Url parser accepts an array or an UrlParserOptions, %s given.", gettype($options)));
+        return $options;
     }
 
-    private function processResponse(Link $link, Response $response, LinkProcessorOptions $options)
+    /**
+     * @param Link $link
+     * @param Response $response
+     * @param array $options
+     * @throws \Exception
+     */
+    private function processResponse(Link $link, Response $response, $options)
     {
 
         $link->setCheckedAt(new \DateTime());
@@ -106,13 +119,25 @@ class LinkProcessor
         $link->setStatusCode($response->getStatusCode());
         $link->setResponse($response->getBody()->getContents());
 
-        foreach ($this->analysers as $analyser) {
-            $analyser->analyse($link, $response, $options);
+        // if it is an external link, don't need to analyse more
+        if ($link->getType() === Link::TYPE_EXTERNAL) {
+            return;
+        }
 
-            // if it is an external link, don't need to analyse more
-            if ($link->getType() === Link::TYPE_EXTERNAL) {
-                break;
+        foreach ($options['parsers'] as $parser) {
+            if (!isset($this->analysers[$parser])) {
+                throw new \Exception(sprintf("Parser %s not found. Available parsers are %", $parser));
             }
+
+            $r = $this->analysers[$parser]->analyse($link, $response, $options);
+
+//            d($parser . $r);
+
+//            if (!$this->analysers[$parser]->analyse($link, $response, $options)) {
+//                continue;
+////                break;
+//            }
+
         }
     }
 }

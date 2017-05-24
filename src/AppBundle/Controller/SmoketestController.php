@@ -36,7 +36,7 @@ class SmoketestController extends Controller
 //                $links[] = $link = new Link("https://www.schweppes.es");
 
 //                d(sprintf("start processing %s", $link->getUrl()));
-                $processor->process($link);
+                $processor->process($link, ['parsers' => 'html']);
             }
 
             return $this->render(

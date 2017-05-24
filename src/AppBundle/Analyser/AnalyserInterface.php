@@ -3,7 +3,6 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
-use AppBundle\Services\LinkProcessorOptions;
 use GuzzleHttp\Psr7\Response;
 
 interface AnalyserInterface
@@ -12,8 +11,13 @@ interface AnalyserInterface
     /**
      * @param Link $link
      * @param Response $response
-     * @param LinkProcessorOptions $options
-     * @return void
+     * @param array $options
+     * @return bool
      */
-    public function analyse(Link $link, Response $response, LinkProcessorOptions $options);
+    public function analyse(Link $link, Response $response, array $options);
+
+    /**
+     * @return string
+     */
+    public function getName();
 }

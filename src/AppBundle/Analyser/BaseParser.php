@@ -9,24 +9,19 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
-use AppBundle\Services\HttpClient;
-use AppBundle\Services\LinkProcessorOptions;
 use Doctrine\ORM\EntityManager;
 
-class BaseParser
+abstract class BaseParser implements AnalyserInterface
 {
-    private $client;
 
     private $entityManager;
 
     /**
      * ChildLinksAnalyser constructor.
-     * @param HttpClient $client
      * @param EntityManager $entityManager
      */
-    public function __construct(HttpClient $client, EntityManager $entityManager)
+    public function __construct(EntityManager $entityManager)
     {
-        $this->client = $client;
 
         $this->entityManager = $entityManager;
     }
@@ -34,38 +29,46 @@ class BaseParser
     /**
      * @param Link $link
      * @param $url
-     * @param LinkProcessorOptions $options
+     * @param array $options
      * @return bool
      */
-    protected function createLinkChildren(Link $link, $url, LinkProcessorOptions $options)
+    protected function createLinkChildren(Link $link, $url, array $options)
     {
-        if(strpos($url, 'mailto:', 0) !== false){
+        if (strpos($url, 'mailto:', 0) !== false) {
             return false;
         }
 
         $childLink = $link->createChild($url);
 
-        if ($this->isLinkValid($childLink, $options) && !$this->isLinkInHierarchy($link, $childLink)) {
-            return $link->addChildren($childLink);
+        if (!$this->isLinkValid($childLink, $options)) {
+            return false;
         }
+
+        if ($this->isLinkInHierarchy($link, $childLink)) {
+            return false;
+        }
+
+        $childLink->addSource($this->getName());
+
+        return $link->addChildren($childLink);
     }
 
 
     /**
      * @param $childLink
-     * @param LinkProcessorOptions $options
+     * @param array $options
      * @return bool
      */
-    private function isLinkValid(Link $childLink, LinkProcessorOptions $options)
+    private function isLinkValid(Link $childLink, array $options)
     {
 
         // skip ignored paths urls
-        if ($this->matchPatterns($childLink->getPath(), $options->getIgnoredPathPatterns())) {
+        if ($this->matchPatterns($childLink->getPath(), $options['ignored_path_patterns'])) {
             return false;
         }
 
         // skip ignored urls
-        if ($this->matchPatterns($childLink->getUrl(), $options->getIgnoredUrlPatterns())) {
+        if ($this->matchPatterns($childLink->getUrl(), $options['ignored_url_patterns'])) {
             return false;
         }
 
@@ -87,7 +90,8 @@ class BaseParser
             return false;
         }
 
-        $result = $this->entityManager->createQueryBuilder()
+        /** @var Link $existentLink */
+        $existentLink = $this->entityManager->createQueryBuilder()
             ->select('l')
             ->from(Link::class, 'l')
             ->where('l.url = :url')
@@ -99,8 +103,17 @@ class BaseParser
                 ]
             )
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
 
+        if ($existentLink) {
+            $existentLink->addSource($this->getName());
+
+            $this->entityManager->persist($existentLink);
+//            $this->entityManager->flush();
+            return true;
+        }
+
+        return false;
         return empty($result) ? false : true;
     }
 
@@ -118,4 +131,5 @@ class BaseParser
         }
         return false;
     }
+
 }

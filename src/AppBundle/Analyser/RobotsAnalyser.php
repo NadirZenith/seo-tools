@@ -3,46 +3,35 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
-use AppBundle\Services\HttpClient;
-use AppBundle\Services\LinkProcessorOptions;
 use GuzzleHttp\Psr7\Response;
 
-class RobotsAnalyser implements AnalyserInterface
+class RobotsAnalyser extends BaseParser implements AnalyserInterface
 {
-    private $client;
+    const NAME = 'robots';
 
     /**
-     * RobotsAnalyser constructor.
-     * @param HttpClient $client
+     * @inheritdoc
      */
-    public function __construct($client)
+    public function analyse(Link $link, Response $response, array $options)
     {
-        $this->client = $client;
-    }
-
-    /**
-     * @param Link $link
-     * @param Response $response
-     * @param LinkProcessorOptions $options
-     * @return void
-     */
-    public function analyse(Link $link, Response $response, LinkProcessorOptions $options)
-    {
-
         // if is root link, query for robots
-        if (!$link->isRoot()) {
-            return;
+        if ($link->isRoot()) {
+
+            $robotsLink = $link->createChild("robots.txt");
+            $robotsLink->setSource(Link::SOURCE_ROBOTS);
+
+            $link->addChildren($robotsLink);
+
+            return true;// no more parsers
         };
 
-        /** @var \GuzzleHttp\Psr7\Response $response */
-        $response = $this->client->get(sprintf("%s://%s/robots.txt", $link->getScheme(), $link->getHost()));
+        return false; // continue parsing
 
-        if ($response->getStatusCode() !== 200) {
-            // @todo set note in link about not fount robots
-            return;
-        }
-
-        // robots.txt exist
-        $link->setRobots($response->getBody()->getContents());
     }
+
+    public function getName()
+    {
+        return self::NAME;
+    }
+
 }

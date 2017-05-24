@@ -35,7 +35,17 @@ class AppParserStatusCommand extends ContainerAwareCommand
         $manager = $this->getContainer()->get('doctrine')->getManager();
 
         if ($input->getOption('list')) {
-            $roots = $manager->getRepository(Link::class)->createQueryBuilder('l')->where('l.parent IS NULL')->getQuery()->getResult();
+            if ($id = (int)$input->getArgument('id')) {
+                $roots = $manager->getRepository(Link::class)->createQueryBuilder('l')->where('l.parent = :id and l.status = \'waiting\'')->setParameter('id', $id)->getQuery()->getResult();
+
+                foreach ($roots as $link) {
+                    $output->writeln(sprintf("#%d %s", $link->getId(), $link->getUrl()));
+                }
+
+                return;
+            }
+
+            $roots = $manager->getRepository(Link::class)->createQueryBuilder('l')->where('l.status = \'waiting\'')->getQuery()->getResult();
 
             foreach ($roots as $link) {
                 $output->writeln(sprintf("#%d %s", $link->getId(), $link->getUrl()));

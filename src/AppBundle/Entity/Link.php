@@ -98,6 +98,13 @@ class Link
     /**
      * @var string
      *
+     * @ORM\Column(name="source2", type="string", nullable=true)
+     */
+    private $source2;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="status_code", type="string", length=255, nullable=true)
      */
     private $statusCode = 0;
@@ -266,7 +273,9 @@ class Link
      */
     public function setUrl($url)
     {
-        $this->url = trim($url);
+//        $this->url = trim($url);
+        $this->url = trim($url, "\t\n\r\0/");
+
         $this->parseUrl();
 
         return $this;
@@ -693,7 +702,7 @@ class Link
         if (!$link->getHost() && $link->getPath()) {
             // child link url is relative, prepend link scheme and host
 
-            $link->setUrl(sprintf("%s://%s%s", $this->getScheme(), $this->getHost(), $link->getPath()))
+            $link->setUrl(sprintf("%s://%s/%s", $this->getScheme(), $this->getHost(), $link->getPath()))
                 ->setType(Link::TYPE_INTERNAL);
         }
 
@@ -702,5 +711,30 @@ class Link
         }
 
         return $link;
+    }
+
+    public function addSource($source)
+    {
+        $sources = explode('|', $this->source2);
+
+        array_push($sources, $source);
+
+        $this->source2 = implode('|', $sources);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSource2()
+    {
+        return $this->source2;
+    }
+
+    /**
+     * @param string $source2
+     */
+    public function setSource2($source2)
+    {
+        $this->source2 = $source2;
     }
 }

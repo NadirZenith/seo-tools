@@ -113,14 +113,20 @@
                                                                 <b>Children</b>
                                                                 {{ include('easy_admin/children_links.html.twig', { value: link.children, view: 'show' }) }}
                                                             </div>
-                                                            <div>
-                                                                <b>Redirects</b>
-                                                                {{ include('easy_admin/field_array.html.twig', { value: link.redirects, view: 'show' }) }}
-                                                            </div>
-                                                            <div>
-                                                                <b>Robots</b>
-                                                                {{ include('easy_admin/html_content.html.twig', { value: link.robots, view: 'show' }) }}
-                                                            </div>
+
+                                                            {% if link.redirects is not empty%}
+                                                                <div>
+                                                                    <b>Redirects</b>
+                                                                    {{ include('easy_admin/field_array.html.twig', { value: link.redirects, view: 'show' }) }}
+                                                                </div>
+                                                            {% endif %}
+
+                                                            {% if link.isRoot %}
+                                                                <div>
+                                                                    <b>Robots</b>
+                                                                    {{ include('easy_admin/html_content.html.twig', { value: link.robots, view: 'show' }) }}
+                                                                </div>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>

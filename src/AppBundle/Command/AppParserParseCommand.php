@@ -63,9 +63,9 @@ class AppParserParseCommand extends ContainerAwareCommand
                         //pinterest
                         '/^http:\/\/(www\.)?pinterest\.com/',
                         // special case
-                        '/^https:\/\/www\.schweppes\.es/',
+//                        '/^https:\/\/www\.schweppes\.es/',
                     ],
-                    'ignored_path_patterns' => '/^\/\_/'
+                    'ignored_path_patterns' => ['/^\/\_/']
                 ]
             );
 

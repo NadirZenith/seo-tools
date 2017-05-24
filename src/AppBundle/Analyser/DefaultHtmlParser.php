@@ -3,23 +3,20 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
-use AppBundle\Services\LinkProcessorOptions;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\DomCrawler\Crawler;
 
 class DefaultHtmlParser extends BaseParser implements AnalyserInterface
 {
-
+    const NAME = 'html';
     /**
-     * @param Link $link
-     * @param Response $response
-     * @param LinkProcessorOptions $options
+     * @inheritdoc
      */
-    public function analyse(Link $link, Response $response, LinkProcessorOptions $options)
+    public function analyse(Link $link, Response $response, array $options)
     {
 
         if (strpos($link->getResponseHeader('Content-Type'), 'text/html') === false) {
-            return;
+            return false; // continue parsing
         }
 
         $crawler = new Crawler($link->getResponse());
@@ -30,7 +27,7 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
         }
 
         // description
-        if ($value = $this->getNodeValue($crawler->filterXPath('//meta[@name="description"]'), 'attr:content')) {
+        if ($value = $this->getNodeValue($crawler->filterXPath('//meta[@name="description"]/@content'))) {
             $link->setMeta('description', $value);
         }
 
@@ -78,6 +75,8 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
         }
 
         $link->setRawImgs($rawImgs);
+
+        return true; // stop remaining parsers
     }
 
 
@@ -88,13 +87,9 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
      */
     private function getNodeValue(Crawler $node, $key = 'text')
     {
-        $param = null;
 
         if ($node->count()) {
-            if (strpos($key, ':') !== false) {
-                list($key, $param) = explode(':', $key);
-            }
-            return $node->$key($param);
+            return $node->$key();
         }
 
         return false;
@@ -130,5 +125,10 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
                 $link->setMeta(sprintf("$header::%d", ++$k), $value);
             }
         }
+    }
+
+    public function getName()
+    {
+        return self::NAME;
     }
 }

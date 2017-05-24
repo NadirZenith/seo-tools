@@ -3,7 +3,6 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
-use AppBundle\Services\LinkProcessorOptions;
 use Doctrine\ORM\EntityManager;
 use GuzzleHttp\Psr7\Response;
 
@@ -22,11 +21,9 @@ class ChildLinksAnalyser implements AnalyserInterface
     }
 
     /**
-     * @param Link $link
-     * @param Response $response
-     * @param LinkProcessorOptions $options
+     * @inheritdoc
      */
-    public function analyse(Link $link, Response $response, LinkProcessorOptions $options)
+    public function analyse(Link $link, Response $response, array $options)
     {
 
         foreach ($link->getRawUrls() as $url) {
@@ -87,10 +84,10 @@ class ChildLinksAnalyser implements AnalyserInterface
 
     /**
      * @param $childLink
-     * @param LinkProcessorOptions $options
+     * @param array $options
      * @return bool
      */
-    private function isLinkValid($childLink, LinkProcessorOptions $options)
+    private function isLinkValid($childLink, array $options)
     {
 
 
