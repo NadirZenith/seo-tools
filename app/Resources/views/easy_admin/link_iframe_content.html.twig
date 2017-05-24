@@ -1,5 +1,7 @@
 {% if view == 'show' %}
-    <iframe src="{{ url('admin_link_iframe_content', {id: item.id}) }}" width="100%" height="500px"></iframe>
+    {% if item.responseHeader('Content-Type') in '/html' %}
+        <iframe src="{{ url('admin_link_iframe_content', {id: item.id}) }}" width="100%" height="500px"></iframe>
+    {% endif %}
 
     <pre>
         {{ value|nl2br }}

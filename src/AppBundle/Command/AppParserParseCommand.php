@@ -91,7 +91,7 @@ class AppParserParseCommand extends ContainerAwareCommand
                     $manager->flush();
                 }
             } catch (\Exception $e) {
-                $this->writeln($e->getMessage());
+                $output->writeln($e->getMessage());
                 break;
             }
         }

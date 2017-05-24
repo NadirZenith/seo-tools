@@ -25,6 +25,10 @@ class RobotsAnalyser extends BaseParser implements AnalyserInterface
             return true;// no more parsers
         };
 
+        if ($link->getSource() === Link::SOURCE_ROBOTS) {
+            //@todo move sitemap robots parse to here
+        }
+
         return false; // continue parsing
 
     }

@@ -30,27 +30,30 @@ abstract class BaseParser implements AnalyserInterface
      * @param Link $link
      * @param $url
      * @param array $options
-     * @return bool
+     * @return bool|Link
      */
     protected function createLinkChildren(Link $link, $url, array $options)
     {
+        // ignore mail urls
         if (strpos($url, 'mailto:', 0) !== false) {
             return false;
         }
 
         $childLink = $link->createChild($url);
 
+        // ignore from patterns && validate
         if (!$this->isLinkValid($childLink, $options)) {
             return false;
         }
 
+        // check(& hit) index(url, root) constraint
         if ($this->isLinkInHierarchy($link, $childLink)) {
             return false;
         }
 
+        // add source
         $childLink->addSource($this->getName());
-
-        return $link->addChildren($childLink);
+        return $link->addChildren($childLink) ? $childLink : false;
     }
 
 
@@ -114,7 +117,6 @@ abstract class BaseParser implements AnalyserInterface
         }
 
         return false;
-        return empty($result) ? false : true;
     }
 
     /**

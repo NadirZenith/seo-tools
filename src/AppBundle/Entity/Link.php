@@ -722,6 +722,13 @@ class Link
         $this->source2 = implode('|', $sources);
     }
 
+    public function containedInSource($source)
+    {
+        $sources = explode('|', $this->source2);
+
+        return in_array($source, $sources);
+    }
+
     /**
      * @return string
      */

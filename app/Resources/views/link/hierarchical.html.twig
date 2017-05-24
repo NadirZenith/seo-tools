@@ -3,6 +3,24 @@
 {% macro link_hierarchy_title(link) %}
     {{ link.url }}
     <small>#{{ link.id }}</small>
+
+    {% if link.containedInSource('sitemap') %}
+        <small class="label bg-blue">Sitemap</small>
+    {% endif %}
+    {% if link.containedInSource('html') %}
+        <small class="label bg-red">Html</small>
+    {% endif %}
+    {% if link.containedInSource('robots') %}
+        <small class="label bg-orange">Robots</small>
+    {% endif %}
+    <div class="pull-right">
+        {% if link.type == 'external' %}
+            <small class="label bg-red">external</small>
+        {% elseif link.type == 'internal' %}
+            <small class="label bg-green">internal</small>
+        {% endif %}
+    </div>
+
 {% endmacro %}
 
 {% macro link_hierarchy(link) %}
