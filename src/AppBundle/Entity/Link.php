@@ -672,7 +672,11 @@ class Link
         return $link;
     }
 
-    public function containedInSource($sourceName)
+    /**
+     * @param $sourceName
+     * @return bool
+     */
+    public function isFromSource($sourceName)
     {
         return $this->getSources()->exists(
             function ($idx, LinkSource $source) use ($sourceName) {
@@ -690,6 +694,19 @@ class Link
     }
 
     /**
+     * @param $sourceName
+     * @return LinkSource
+     */
+    public function getSource($sourceName)
+    {
+        return $this->getSources()->filter(
+            function (LinkSource $linkSource) use ($sourceName) {
+                return $linkSource->getSource() === $sourceName;
+            }
+        );
+    }
+
+    /**
      * @param ArrayCollection $sources
      */
     public function setSources($sources)
@@ -698,9 +715,13 @@ class Link
     }
 
 
+    /**
+     * @param LinkSource $source
+     * @return $this
+     */
     public function addSource(LinkSource $source)
     {
-        if (!$this->containedInSource($source->getSource())) {
+        if (!$this->getSource($source->getSource())) {
             $this->sources->add($source);
         }
 

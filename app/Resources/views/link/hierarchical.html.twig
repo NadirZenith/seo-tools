@@ -4,15 +4,17 @@
     {{ link.url }}
     <small>#{{ link.id }}</small>
 
-    {% if link.containedInSource('sitemap') %}
-        <small class="label bg-blue">Sitemap</small>
+    {#source#}
+    {% if link.fromSource('html') %}
+        <small class="label bg-green">html</small>
     {% endif %}
-    {% if link.containedInSource('html') %}
-        <small class="label bg-red">Html</small>
+    {% if link.fromSource('sitemap') %}
+        <small class="label bg-blue">sitemap</small>
     {% endif %}
-    {% if link.containedInSource('robots') %}
-        <small class="label bg-orange">Robots</small>
+    {% if link.fromSource('robots') %}
+        <small class="label bg-orange">robots</small>
     {% endif %}
+
     <div class="pull-right">
         {% if link.type == 'external' %}
             <small class="label bg-red">external</small>

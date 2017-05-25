@@ -73,12 +73,25 @@
                                                                                 class="fa fa-external-link"></i></a>
                                                                 </small>
 
+                                                                {#redirects#}
                                                                 {% if link.redirects %}
                                                                     <small class="label bg-orange"
                                                                            title="has redirects">
                                                                         {{ link.redirects|length }}</small>
                                                                 {% endif %}
 
+                                                                {#source#}
+                                                                {% if link.fromSource('html') %}
+                                                                    <small class="label bg-green">html</small>
+                                                                {% endif %}
+                                                                {% if link.fromSource('sitemap') %}
+                                                                    <small class="label bg-blue"sitemap</small>
+                                                                {% endif %}
+                                                                {% if link.fromSource('robots') %}
+                                                                    <small class="label bg-orange"robots</small>
+                                                                {% endif %}
+
+                                                                {#status#}
                                                                 {% if link.type == constant('AppBundle\\Entity\\Link::TYPE_EXTERNAL') %}
                                                                     <small class="label pull-right bg-blue">External
                                                                     </small>
@@ -114,7 +127,7 @@
                                                                 {{ include('easy_admin/children_links.html.twig', { value: link.children, view: 'show' }) }}
                                                             </div>
 
-                                                            {% if link.redirects is not empty%}
+                                                            {% if link.redirects is not empty %}
                                                                 <div>
                                                                     <b>Redirects</b>
                                                                     {{ include('easy_admin/field_array.html.twig', { value: link.redirects, view: 'show' }) }}
