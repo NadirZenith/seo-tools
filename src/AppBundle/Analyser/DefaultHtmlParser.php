@@ -9,6 +9,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class DefaultHtmlParser extends BaseParser implements AnalyserInterface
 {
     const NAME = 'html';
+
     /**
      * @inheritdoc
      */
@@ -16,9 +17,20 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
     {
 
         if (strpos($link->getResponseHeader('Content-Type'), 'text/html') === false) {
-            return false; // continue parsing
+            return false;
         }
 
+        $this->analyseHtml($link, $options);
+
+        return true;
+    }
+
+    /**
+     * @param Link $link
+     * @param $options
+     */
+    private function analyseHtml(Link $link, $options)
+    {
         $crawler = new Crawler($link->getResponse());
 
         // title
@@ -75,8 +87,6 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
         }
 
         $link->setRawImgs($rawImgs);
-
-        return true; // stop remaining parsers
     }
 
 
@@ -127,6 +137,9 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getName()
     {
         return self::NAME;

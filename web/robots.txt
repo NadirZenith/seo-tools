@@ -3,3 +3,5 @@
 
 User-agent: *
 Disallow:
+
+Sitemap: http://seo-tools.dev/sitemap_index.xml

@@ -9,6 +9,7 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
+use AppBundle\Entity\LinkSource;
 use Doctrine\ORM\EntityManager;
 
 abstract class BaseParser implements AnalyserInterface
@@ -51,8 +52,7 @@ abstract class BaseParser implements AnalyserInterface
             return false;
         }
 
-        // add source
-        $childLink->addSource($this->getName());
+        $childLink->addSource($this->getSource($this->getName()));
         return $link->addChildren($childLink) ? $childLink : false;
     }
 
@@ -109,10 +109,11 @@ abstract class BaseParser implements AnalyserInterface
             ->getOneOrNullResult();
 
         if ($existentLink) {
-            $existentLink->addSource($this->getName());
+            // add source
+            $existentLink->addSource($this->getSource($this->getName()));
 
             $this->entityManager->persist($existentLink);
-//            $this->entityManager->flush();
+//            $this->entityManager->flush($existentLink);
             return true;
         }
 
@@ -134,4 +135,24 @@ abstract class BaseParser implements AnalyserInterface
         return false;
     }
 
+    private function getSource($name)
+    {
+        /** @var LinkSource $source */
+        $source = $this->entityManager->createQueryBuilder()
+            ->select('ls')
+            ->from(LinkSource::class, 'ls')
+            ->where('ls.source = :source')
+            ->setParameter('source', $name)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$source) {
+            $source = new LinkSource($name);
+            $this->entityManager->persist($source);
+            // must save now for the next link find it
+            $this->entityManager->flush($source);
+        }
+
+        return $source;
+    }
 }

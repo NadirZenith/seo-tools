@@ -30,6 +30,15 @@ class LinkSource
 
 
     /**
+     * LinkSource constructor.
+     * @param string $name
+     */
+    public function __construct($name)
+    {
+        $this->setSource($name);
+    }
+
+    /**
      * Get id
      *
      * @return int
@@ -63,4 +72,3 @@ class LinkSource
         return $this->source;
     }
 }
-

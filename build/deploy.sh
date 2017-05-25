@@ -165,9 +165,11 @@ then
     export SYMFONY_ENV=dev
     bin/composer install
 
-    display_success 'Upgrade database'
+    display_info 'Reset Database'
+    bin/php bin/console doctrine:database:drop --force
+    bin/php bin/console doctrine:database:create
     bin/php bin/console doctrine:schema:update --dump-sql --force
-    bin/php bin/console doctrine:fixtures:load --no-interaction
+#    bin/php bin/console doctrine:fixtures:load --no-interaction
 
 #    display_success 'Generate ASSETS'
 #    bin/node node_modules/.bin/grunt --force package

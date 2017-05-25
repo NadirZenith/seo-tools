@@ -91,20 +91,6 @@ class Link
     /**
      * @var string
      *
-     * @ORM\Column(name="source", type="string", length=255)
-     */
-    private $source = Link::SOURCE_HTML;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="source2", type="string", nullable=true)
-     */
-    private $source2;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="status_code", type="string", length=255, nullable=true)
      */
     private $statusCode = 0;
@@ -115,13 +101,6 @@ class Link
      * @ORM\Column(name="response", type="text", nullable=true)
      */
     private $response;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="robots", type="text", nullable=true)
-     */
-    private $robots;
 
     /**
      * @var array
@@ -180,6 +159,7 @@ class Link
      * @var Link
      *
      * @ORM\ManyToOne(targetEntity="Link", inversedBy="children", cascade={"persist"}, fetch="EAGER")
+     * @ORM\JoinColumn(onDelete="CASCADE") // delete children when delete root
      */
     private $parent;
 
@@ -191,17 +171,28 @@ class Link
     private $children;
 
     /**
+     * Many Links have Many Sources.
+     * @var ArrayCollection
+     * @ORM\ManyToMany(targetEntity="LinkSource", cascade={"persist", "remove"}, fetch="EAGER")
+     * @ORM\JoinTable(name="links_sources",
+     *      joinColumns={@ORM\JoinColumn(name="link_id", referencedColumnName="id", onDelete="CASCADE")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="source_id", referencedColumnName="id")}
+     *      )
+     */
+    private $sources;
+
+    /**
      * Link constructor.
      *
      * @param null $url
-     * @param string $source
-     * @internal param string $type
+     * @param LinkSource $source
      */
-    public function __construct($url = null, $source = self::SOURCE_HTML)
+    public function __construct($url, $source = null)
     {
         $this->children = new ArrayCollection();
+        $this->sources = new ArrayCollection();
         $this->setUrl($url);
-        $this->setSource($source);
+        $this->addSource($source);
 
         $this->setRoot($this);
     }
@@ -273,7 +264,6 @@ class Link
      */
     public function setUrl($url)
     {
-//        $this->url = trim($url);
         $this->url = trim($url, "\t\n\r\0/");
 
         $this->parseUrl();
@@ -643,22 +633,6 @@ class Link
     }
 
     /**
-     * @return string
-     */
-    public function getRobots()
-    {
-        return $this->robots;
-    }
-
-    /**
-     * @param string $robots
-     */
-    public function setRobots($robots)
-    {
-        $this->robots = $robots;
-    }
-
-    /**
      * @return array
      */
     public function getRawImgs()
@@ -675,28 +649,12 @@ class Link
     }
 
     /**
-     * @return string
-     */
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    /**
-     * @param string $source
-     */
-    public function setSource($source)
-    {
-        $this->source = $source;
-    }
-
-    /**
      * @param string $url
      * @return Link
      */
     public function createChild($url)
     {
-        $link = new self($url, $this->getSource());
+        $link = new self($url, $this->getSources()->first());
 
         // check if child url is relative and has a path (ex: is not a #hash url)
         if (!$link->getHost() && $link->getPath()) {
@@ -713,35 +671,38 @@ class Link
         return $link;
     }
 
-    public function addSource($source)
+    public function containedInSource($sourceName)
     {
-        $sources = explode('|', $this->source2);
-
-        array_push($sources, $source);
-
-        $this->source2 = implode('|', $sources);
-    }
-
-    public function containedInSource($source)
-    {
-        $sources = explode('|', $this->source2);
-
-        return in_array($source, $sources);
+        return $this->getSources()->exists(
+            function ($idx, LinkSource $source) use ($sourceName) {
+                return $source->getSource() === $sourceName;
+            }
+        );
     }
 
     /**
-     * @return string
+     * @return ArrayCollection
      */
-    public function getSource2()
+    public function getSources()
     {
-        return $this->source2;
+        return $this->sources;
     }
 
     /**
-     * @param string $source2
+     * @param ArrayCollection $sources
      */
-    public function setSource2($source2)
+    public function setSources($sources)
     {
-        $this->source2 = $source2;
+        $this->sources = $sources;
+    }
+
+
+    public function addSource(LinkSource $source)
+    {
+        if (!$this->containedInSource($source->getSource())) {
+            $this->sources->add($source);
+        }
+
+        return $this;
     }
 }

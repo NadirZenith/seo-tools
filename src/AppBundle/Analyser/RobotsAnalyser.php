@@ -16,26 +16,42 @@ class RobotsAnalyser extends BaseParser implements AnalyserInterface
     {
         // if is root link, query for robots
         if ($link->isRoot()) {
+            $this->createLinkChildren($link, "robots.txt", $options);
 
-            $robotsLink = $link->createChild("robots.txt");
-            $robotsLink->setSource(Link::SOURCE_ROBOTS);
-
-            $link->addChildren($robotsLink);
-
-            return true;// no more parsers
+            return true;
         };
 
-        if ($link->getSource() === Link::SOURCE_ROBOTS) {
-            //@todo move sitemap robots parse to here
+        if (strpos($link->getResponseHeader('Content-Type'), 'text/plain') === false) {
+            return false;
         }
 
-        return false; // continue parsing
+        $this->analyseRobots($link, $options);
 
+        return true;
     }
 
+    /**
+     * @param Link $link
+     * @param $options
+     * @internal param Link $sitemapLink
+     * @todo match remaining sitemap links
+     */
+    private function analyseRobots(Link $link, $options)
+    {
+
+        preg_match_all('/Sitemap: ([^\s]+)/', $link->getResponse(), $match);
+
+        if (isset($match[1], $match[1][0]) && !empty($match[1][0])) {
+            // Sitemap url found on robots.txt, use it to get sitemap url
+            $this->createLinkChildren($link, $match[1][0], $options);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getName()
     {
         return self::NAME;
     }
-
 }
