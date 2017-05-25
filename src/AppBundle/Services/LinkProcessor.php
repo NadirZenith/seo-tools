@@ -61,6 +61,7 @@ class LinkProcessor
      * @param Link $link
      * @param array $options
      * @return bool
+     * @throws \Exception
      */
     public function process(Link $link, $options = [])
     {
@@ -74,7 +75,10 @@ class LinkProcessor
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
-            dd(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            if (!$options['force']) {
+//                dd(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
+                throw new \Exception(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            }
             return false;
         }
 
@@ -91,13 +95,17 @@ class LinkProcessor
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
+            'force'                 => false,
             'parsers'               => [RobotsAnalyser::NAME, DefaultSitemapParser::NAME, DefaultHtmlParser::NAME],
             'ignored_url_patterns'  => [],
-            'ignored_path_patterns' => []
+            'ignored_path_patterns' => [],
+            'image_patterns'        => ['/.(?:jpe?g|gif|png)/']
         ]);
 
         $resolver->setAllowedTypes('ignored_url_patterns', ['array']);
         $resolver->setAllowedTypes('ignored_path_patterns', ['array']);
+        $resolver->setAllowedTypes('image_patterns', ['array']);
+        $resolver->setAllowedTypes('force', ['bool']);
         $options = $resolver->resolve($options);
 
         return $options;

@@ -59,10 +59,18 @@ abstract class BaseParser implements AnalyserInterface
      * @param $childLink
      * @param array $options
      * @return bool
+     * @todo move the image skip to the html parser
+     * to allow this method to validate image links.
+     * maybe the same image pattern create image links
+     *
      */
     private function isLinkValid(Link $childLink, array $options)
     {
 
+        // skip images
+        if ($this->matchPatterns($childLink->getPath(), $options['image_patterns'])) {
+            return false;
+        }
         // skip ignored paths urls
         if ($this->matchPatterns($childLink->getPath(), $options['ignored_path_patterns'])) {
             return false;

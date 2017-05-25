@@ -160,7 +160,7 @@ class Link
      * @var Link
      *
      * @ORM\ManyToOne(targetEntity="Link", inversedBy="children", cascade={"persist"}, fetch="EAGER")
-     * ORM\JoinColumn(onDelete="CASCADE") // delete children when delete root
+     * @ORM\JoinColumn(onDelete="CASCADE") // delete children when delete root
      */
     private $parent;
 
@@ -559,8 +559,8 @@ class Link
     public function containsLinkChildrenUrl(Link $link, $url)
     {
         return $link->getChildren()->exists(
-            function ($idx, $link) use ($url) {
-                return $link->getUrl() === $url;
+            function ($idx, Link $link) use ($url) {
+                return strtolower($link->getUrl()) === strtolower($url);
             }
         );
     }

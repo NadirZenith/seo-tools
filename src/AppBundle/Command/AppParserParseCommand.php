@@ -19,11 +19,13 @@ class AppParserParseCommand extends ContainerAwareCommand
             ->setName('app:parser:parse')
             ->setDescription('Parse waiting links')
             ->addArgument('id', InputArgument::OPTIONAL, 'Id from link to see status')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Test mode, do not save');
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Test mode, do not save')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Does not throw exception');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
         /**
          * @var LinkProcessor $processor
          */
@@ -46,8 +48,8 @@ class AppParserParseCommand extends ContainerAwareCommand
          */
         foreach ($links as $k => $link) {
             $output->write(sprintf('%d/%d -> Start parsing url %s', ++$k, count($links), $link->getUrl()));
-            $status = $processor->process(
-                $link, [
+            $status = $processor->process($link, [
+                    'force'                 => $input->getOption('force'),
                     'ignored_url_patterns'  => [
                         //facebook
                         '/^http:\/\/www\.facebook\.com\/sharer\.php/',
