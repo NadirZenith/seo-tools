@@ -60,6 +60,28 @@ else
     display_success "Php Mess Detector: $version"
 fi
 
+#phpdoc binary
+if [ ! -x 'bin/phpdoc' ]
+then
+    display_error "PhpDocumentor not found in 'bin' folder"
+    display_info "Do you forgot to create a link? (ln -s /usr/bin/phpdoc bin/phpdoc)"
+    die
+else
+    version=`bin/phpdoc --version`
+    display_success "Php Documentor: $version"
+fi
+
+#metrics binary
+if [ ! -x 'bin/phpmetrics' ]
+then
+    display_error "Php Metrics not found in 'bin' folder"
+    display_info "Do you forgot to create a link? (ln -s /usr/bin/phpmetrics bin/phpmetrics)"
+    die
+else
+    version=`bin/phpmetrics --version`
+    display_success "Php Metrics: $version"
+fi
+
 ##Check NODE binary
 #if [ ! -x 'bin/node' ]
 #then
@@ -128,6 +150,14 @@ else
     display_success "No Php Mess Detector errors"
 fi
 
+display_info "Generating phpmetrics in build/phpmetrics:"
+bin/phpmetrics --report-html=build/phpmetrics src
+
+display_info "Generating documentation in build/docs:"
+bin/phpdoc -p -n --sourcecode --title="Seo Tools" -d ./src -t build/docs
+
+
+
 #Check for htaccess(apache only)
 #if [ ! -e 'web/.htaccess' ]
 #then
@@ -149,11 +179,11 @@ then
 #    bin/npm update
 #    bin/npm list --depth=0
 
-    display_info 'Check for COMPOSER updates'
+    display_info 'Check for composer updates'
     export SYMFONY_ENV=dev
     bin/composer install
 
-    display_success 'Upgrade database'
+    display_success 'Update schema'
     bin/php bin/console doctrine:schema:update --dump-sql --force
 
 #    display_success 'Generate ASSETS'
@@ -161,11 +191,11 @@ then
 
 elif [ $1 = 'test' ]
 then
-    display_info 'Check for COMPOSER updates'
+    display_info 'Check for composer updates'
     export SYMFONY_ENV=dev
     bin/composer install
 
-    display_info 'Reset Database'
+    display_info 'Reset database'
     bin/php bin/console doctrine:database:drop --force
     bin/php bin/console doctrine:database:create
     bin/php bin/console doctrine:schema:update --dump-sql --force
@@ -176,11 +206,11 @@ then
 
 elif [ $1 = 'prod' ]
 then
-    display_info 'Check for COMPOSER updates'
+    display_info 'Check for composer updates'
     export SYMFONY_ENV=prod
     bin/composer install --no-dev --optimize-autoloader
 
-    display_success 'Upgrade database'
+    display_success 'Update schema'
     bin/php bin/console doctrine:schema:update --dump-sql --force
 
 #    display_success 'Generate ASSETS'

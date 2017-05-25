@@ -1,4 +1,7 @@
 <?php
+/**
+ * This file is part of the seo-tools package.
+ */
 
 namespace AppBundle\Services;
 
@@ -12,6 +15,10 @@ use Doctrine\ORM\EntityManager;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class LinkProcessor
+ * @package AppBundle\Services
+ */
 class LinkProcessor
 {
     /**
@@ -40,10 +47,6 @@ class LinkProcessor
 
         // analyse tags (metas, a, imgs, etc...)
         $this->addAnalyser(new DefaultHtmlParser($entityManager));
-
-
-        // convert previous urls into links
-//        $this->addAnalyser(new ChildLinksAnalyser($entityManager));
     }
 
     /**
@@ -52,7 +55,6 @@ class LinkProcessor
     public function addAnalyser(AnalyserInterface $analyser)
     {
         $this->analysers[$analyser->getName()] = $analyser;
-//        array_push($this->analysers, $analyser);
     }
 
     /**
@@ -71,8 +73,8 @@ class LinkProcessor
             $this->processResponse($link, $response, $options);
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
-            $link->setStatusMessage(sprintf('Browser exception: %s in %s:%d ', $e->getMessage(), $e->getFile(), $e->getLine()));
-//            dd(sprintf('Debug exception: %s in %s:%d ', $e->getMessage(), $e->getFile(), $e->getLine()));
+            $link->setStatusMessage(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            dd(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
             return false;
         }
 
@@ -118,7 +120,7 @@ class LinkProcessor
         $link->setResponse($response->getBody()->getContents());
 
         // if it is an external link, don't need to analyse more
-        if ($link->getType() === Link::TYPE_EXTERNAL) {
+        if ($link->getType() !== Link::TYPE_INTERNAL) {
             return;
         }
 

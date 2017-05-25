@@ -30,7 +30,8 @@ class Link
      * Type of Link in relation with parent
      */
     const TYPE_EXTERNAL = 'external'; // link is in another domain
-    const TYPE_INTERNAL = 'internal'; // lnk is in the same domain as parent
+    const TYPE_INTERNAL = 'internal'; // linnk is in the same domain as parent
+    const TYPE_SCHEME_CHANGE = 'scheme_change'; // link is in the same domain, but different scheme
 
     /**
      * Source of this link
@@ -159,7 +160,7 @@ class Link
      * @var Link
      *
      * @ORM\ManyToOne(targetEntity="Link", inversedBy="children", cascade={"persist"}, fetch="EAGER")
-     * @ORM\JoinColumn(onDelete="CASCADE") // delete children when delete root
+     * ORM\JoinColumn(onDelete="CASCADE") // delete children when delete root
      */
     private $parent;
 
@@ -655,7 +656,11 @@ class Link
      */
     public function createChild($url)
     {
-        $link = new self($url, $this->getSources()->first());
+        // with this we mark the child with the parent source
+        // ex: if a parent comes from a sitemap a child from a web page
+        // will also have the sitemap LinkResource
+//        $link = new self($url, $this->getSources()->first());
+        $link = new self($url);
 
         // check if child url is relative and has a path (ex: is not a #hash url)
         if (!$link->getHost() && $link->getPath()) {
@@ -663,6 +668,10 @@ class Link
 
             $link->setUrl(sprintf("%s://%s/%s", $this->getScheme(), $this->getHost(), $link->getPath()))
                 ->setType(Link::TYPE_INTERNAL);
+        }
+
+        if ($this->getHost() === $link->getHost() && $this->getScheme() !== $link->getScheme()) {
+            $link->setType(Link::TYPE_SCHEME_CHANGE);
         }
 
         if ($this->getHost() !== $link->getHost()) {
@@ -721,7 +730,7 @@ class Link
      */
     public function addSource(LinkSource $source)
     {
-        if (!$this->getSource($source->getSource())) {
+        if (!$this->getSources()->contains($source)) {
             $this->sources->add($source);
         }
 

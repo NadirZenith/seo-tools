@@ -330,6 +330,26 @@ class DefaultController extends Controller
      */
     public function devAction()
     {
+        $manager = $this->getDoctrine()->getManager();
+
+        $links = $manager->getRepository(Link::class)->createQueryBuilder('l')
+//            ->select('l')
+//            ->from(Link::class, 'l')
+            ->join('l.sources', 's')
+            ->where('s.source = :source')
+            ->setParameters(
+                [
+                    'source'  => 'sitemap',
+                ]
+            )
+            ->orderBy('l.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        dd($links);
+        dd(count($links));
+
+        return;
         $client = $this->get('app.guzzle.client');
 
         //$resp = $client->get('http://www.schweppes.dev/sitemap.xml');//header[Content-Type = text/xml]
@@ -344,7 +364,6 @@ class DefaultController extends Controller
          * @var LinkProcessor $processor
          */
         $processor = $this->get('app.link_processor');
-        $manager = $this->getDoctrine()->getManager();
 
         $link = $manager->getRepository(Link::class)->find(2);
         $processor->process($link);

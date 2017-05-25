@@ -68,7 +68,6 @@ easy_admin:
                 fields:
                     - checkedAt
                     - { property: 'url'}
-                    - { property: 'source'}
                     - { property: 'status'}
                     - { property: 'statusCode'}
                     - { property: 'redirects'}
@@ -76,7 +75,6 @@ easy_admin:
                     - { property: 'parent'}
                     - { property: 'metas'}
                     - { property: 'responseHeaders'}
-                    - { property: 'robots',       template: 'html_content.html.twig' }
                     - { property: 'response',     template: 'link_iframe_content.html.twig' }
                     - { property: 'rawUrls',      template: 'raw_urls.html.twig' }
                     - { property: 'children',     template: 'children_links.html.twig' }

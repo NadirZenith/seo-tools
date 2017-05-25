@@ -85,18 +85,22 @@
                                                                     <small class="label bg-green">html</small>
                                                                 {% endif %}
                                                                 {% if link.fromSource('sitemap') %}
-                                                                    <small class="label bg-blue"sitemap</small>
+                                                                    <small class="label bg-blue">sitemap</small>
                                                                 {% endif %}
                                                                 {% if link.fromSource('robots') %}
-                                                                    <small class="label bg-orange"robots</small>
+                                                                    <small class="label bg-orange">robots</small>
+                                                                {% endif %}
+
+                                                                {#type#}
+                                                                {% if link.type == constant('AppBundle\\Entity\\Link::TYPE_EXTERNAL') %}
+                                                                    <small class="label pull-right bg-blue">External</small>
+                                                                {% endif %}
+
+                                                                {% if link.type == constant('AppBundle\\Entity\\Link::TYPE_SCHEME_CHANGE') %}
+                                                                    <small class="label pull-right bg-red">Scheme Change</small>
                                                                 {% endif %}
 
                                                                 {#status#}
-                                                                {% if link.type == constant('AppBundle\\Entity\\Link::TYPE_EXTERNAL') %}
-                                                                    <small class="label pull-right bg-blue">External
-                                                                    </small>
-                                                                {% endif %}
-
                                                                 {% if link.status != constant('AppBundle\\Entity\\Link::STATUS_PARSED') %}
                                                                     <small class="label pull-right bg-red">{{ link.status }}</small>
                                                                 {% endif %}
