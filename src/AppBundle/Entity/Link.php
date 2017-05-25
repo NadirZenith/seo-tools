@@ -192,7 +192,9 @@ class Link
         $this->children = new ArrayCollection();
         $this->sources = new ArrayCollection();
         $this->setUrl($url);
-        $this->addSource($source);
+        if ($source) {
+            $this->addSource($source);
+        }
 
         $this->setRoot($this);
     }
