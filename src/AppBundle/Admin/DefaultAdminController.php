@@ -6,5 +6,4 @@ use JavierEguiluz\Bundle\EasyAdminBundle\Controller\AdminController as BaseAdmin
 
 class DefaultAdminController extends BaseAdminController
 {
-
 }

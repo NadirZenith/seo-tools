@@ -62,7 +62,6 @@ class LinkProcessor
      */
     public function process(Link $link, $options = [])
     {
-
         $options = $this->initOptions($options);
 
         try {
@@ -110,7 +109,6 @@ class LinkProcessor
      */
     private function processResponse(Link $link, Response $response, $options)
     {
-
         $link->setCheckedAt(new \DateTime());
         $link->setRedirects($this->client->getRedirects());
         $link->setMeta('transferTime', $this->client->getTransferTime());
@@ -129,14 +127,7 @@ class LinkProcessor
                 throw new \Exception(sprintf("Parser %s not found. Available parsers are %", $parser));
             }
 
-            $r = $this->analysers[$parser]->analyse($link, $response, $options);
-
-//            d($parser . $r);
-
-//            if (!$this->analysers[$parser]->analyse($link, $response, $options)) {
-//                continue;
-////                break;
-//            }
+            $this->analysers[$parser]->analyse($link, $response, $options);
         }
     }
 }

@@ -15,7 +15,6 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
      */
     public function analyse(Link $link, Response $response, array $options)
     {
-
         if (strpos($link->getResponseHeader('Content-Type'), 'text/html') === false) {
             return false;
         }
@@ -97,7 +96,6 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
      */
     private function getNodeValue(Crawler $node, $key = 'text')
     {
-
         if ($node->count()) {
             return $node->$key();
         }
@@ -129,7 +127,6 @@ class DefaultHtmlParser extends BaseParser implements AnalyserInterface
      */
     private function analyseHeaders(Link $link, Crawler $crawler, $header = 'h1')
     {
-
         if ($values = $this->getNodeValues($crawler->filterXPath("//$header"))) {
             foreach ($values as $k => $value) {
                 $link->setMeta(sprintf("$header::%d", ++$k), $value);

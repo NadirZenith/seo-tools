@@ -23,7 +23,6 @@ class HttpClient extends Client
      */
     public function __call($method, $args)
     {
-
         $args = $this->setUpRedirectWatcher($args);
         $args = $this->setUpTransferTimeWatcher($args);
 

@@ -12,7 +12,6 @@ use Doctrine\ORM\EntityRepository;
  */
 class LinkRepository extends EntityRepository
 {
-
     public function getHierarchicalFromRoot($id)
     {
         $stt = $this->getEntityManager()->getConnection()->prepare(

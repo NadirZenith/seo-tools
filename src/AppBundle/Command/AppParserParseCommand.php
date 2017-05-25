@@ -100,7 +100,6 @@ class AppParserParseCommand extends ContainerAwareCommand
 
     private function getLinks($id, EntityManager $manager)
     {
-
         if ($id) {
             return $manager->getRepository(Link::class)->findBy(['id' => $id]);
         }

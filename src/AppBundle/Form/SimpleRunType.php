@@ -20,7 +20,6 @@ class SimpleRunType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
             ->add(
                 'urls', TextareaType::class, [

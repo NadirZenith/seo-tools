@@ -14,7 +14,6 @@ use Doctrine\ORM\EntityManager;
 
 abstract class BaseParser implements AnalyserInterface
 {
-
     private $entityManager;
 
     /**
@@ -23,7 +22,6 @@ abstract class BaseParser implements AnalyserInterface
      */
     public function __construct(EntityManager $entityManager)
     {
-
         $this->entityManager = $entityManager;
     }
 

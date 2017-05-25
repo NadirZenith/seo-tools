@@ -466,7 +466,6 @@ class Link
      */
     public function addChildren(Link $link)
     {
-
         if ($this->containsLinkChildrenUrl($this, $link->getUrl())) {
             return false;
         }

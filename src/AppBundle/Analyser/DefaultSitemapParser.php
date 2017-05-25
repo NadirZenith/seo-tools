@@ -15,7 +15,6 @@ class DefaultSitemapParser extends BaseParser implements AnalyserInterface
      */
     public function analyse(Link $link, Response $response, array $options)
     {
-
         if ($link->isRoot()) {
             // if is root link, query for sitemap.xml
             $this->createLinkChildren($link, "sitemap.xml", $options);
@@ -39,7 +38,6 @@ class DefaultSitemapParser extends BaseParser implements AnalyserInterface
      */
     private function analyseSitemap(Link $link, $options)
     {
-
         $sitemapXml = new SimpleXmlElement($link->getResponse());
 
         $key = 'url';

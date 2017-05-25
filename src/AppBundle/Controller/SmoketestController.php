@@ -22,7 +22,6 @@ class SmoketestController extends Controller
      */
     public function indexAction(Request $request)
     {
-
         $form = $this->createForm(SimpleRunType::class, null);
 
         $form->handleRequest($request);

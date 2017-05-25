@@ -47,7 +47,7 @@ class LinkController extends Controller
      */
     public function hierarchyAction(Request $request)
     {
-//        $links = $this->getDoctrine()->getRepository(Link::class)->getHierarchicalFromRoot($request->get('id'));
+        //        $links = $this->getDoctrine()->getRepository(Link::class)->getHierarchicalFromRoot($request->get('id'));
         $link = $this->getDoctrine()->getRepository(Link::class)->find($request->get('id'));
 
         return $this->render(

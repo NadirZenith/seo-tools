@@ -38,7 +38,6 @@ class RobotsAnalyser extends BaseParser implements AnalyserInterface
      */
     private function analyseRobots(Link $link, $options)
     {
-
         preg_match_all('/Sitemap: ([^\s]+)/', $link->getResponse(), $match);
 
         if (isset($match[1], $match[1][0]) && !empty($match[1][0])) {

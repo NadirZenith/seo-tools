@@ -172,7 +172,6 @@ class DefaultController extends Controller
      */
     public function seoReport2Action(Request $request)
     {
-
         $form = $this->createFormBuilder(new Link(), array())
             ->add('url', UrlType::class)
             ->add(
@@ -259,7 +258,6 @@ class DefaultController extends Controller
      */
     public function seoReportAction(Request $request)
     {
-
         $form = $this->createFormBuilder(new Link(), array())
             ->add('url', UrlType::class)
             ->add(
