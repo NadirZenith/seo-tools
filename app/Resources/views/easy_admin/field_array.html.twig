@@ -5,14 +5,14 @@
             <ul>
                 {% for key, element in value %}
                     {% if element is iterable %}
-                        <li><span><b>{{ key }}</b></span>
-                            {% for val in element %}
-                                 -> {{ val }}<br>
+                        <li>
+                            <span>{{ key }}</span><br>
+                            {% for key2, val in element %}
+                                 <b>{{ key2 }}</b> -> {{ val }}<br>
                             {% endfor %}
                         </li>
                     {% else %}
-                        {#<li>{{ element }}</li>#}
-                        <li><span><b>{{ key }}</b></span> -> {{ element }}</li>
+                        <li><b>{{ key }}</b> -> {{ element }}</li>
                     {% endif %}
                 {% endfor %}
             </ul>

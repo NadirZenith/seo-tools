@@ -59,9 +59,11 @@ class AppParserParseCommand extends ContainerAwareCommand
                         '/^http(s)?:\/\/(www\.)?twitter\.com/',
                         //google
                         '/^https:\/\/plus\.google\.com/',
-                        '/^http:\/\/www\.youtube\.com/',
+                        '/^http(s)?:\/\/www\.youtube\.com/',
                         //instagram
                         '/^http:\/\/instagram\.com/',
+                        //soundcloud
+                        '/^http(s)?:\/\/(www\.)?soundcloud\.com/',
                         //pinterest
                         '/^http:\/\/(www\.)?pinterest\.com/',
                         // special case

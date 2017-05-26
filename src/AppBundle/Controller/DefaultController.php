@@ -330,6 +330,14 @@ class DefaultController extends Controller
      */
     public function devAction()
     {
+return;
+        $client = $this->get('app.guzzle.client');
+        $link = new Link('http://www.schweppes.dev/cocteleria/ginger');
+
+        $response = $client->get($link->getUrl());
+        d($client->getRedirects());
+        dd($link);
+
         $manager = $this->getDoctrine()->getManager();
 
         $links = $manager->getRepository(Link::class)->createQueryBuilder('l')

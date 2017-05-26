@@ -96,7 +96,8 @@ class LinkProcessor
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             'force'                 => false,
-            'parsers'               => [RobotsAnalyser::NAME, DefaultSitemapParser::NAME, DefaultHtmlParser::NAME],
+            'parsers'               => array_keys($this->analysers),
+//            'parsers'               => [RobotsAnalyser::NAME, DefaultSitemapParser::NAME, DefaultHtmlParser::NAME],
             'ignored_url_patterns'  => [],
             'ignored_path_patterns' => [],
             'image_patterns'        => ['/.(?:jpe?g|gif|png)/']
