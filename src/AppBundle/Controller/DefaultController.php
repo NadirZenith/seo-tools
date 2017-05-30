@@ -330,7 +330,7 @@ class DefaultController extends Controller
      */
     public function devAction()
     {
-return;
+        return;
         $client = $this->get('app.guzzle.client');
         $link = new Link('http://www.schweppes.dev/cocteleria/ginger');
 

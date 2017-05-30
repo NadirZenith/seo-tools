@@ -51,21 +51,15 @@ class AppParserParseCommand extends ContainerAwareCommand
             $status = $processor->process($link, [
                     'force'                 => $input->getOption('force'),
                     'ignored_url_patterns'  => [
-                        //facebook
-                        '/^http:\/\/www\.facebook\.com\/sharer\.php/',
-                        '/^http(s)?:\/\/www\.facebook\.com/',
-                        //twitter
-                        '/^https:\/\/twitter\.com\/intent\/tweet/',
+                        '/^http(s)?:\/\/(www\.)?facebook\.com/',
                         '/^http(s)?:\/\/(www\.)?twitter\.com/',
-                        //google
-                        '/^https:\/\/plus\.google\.com/',
-                        '/^http(s)?:\/\/www\.youtube\.com/',
-                        //instagram
-                        '/^http:\/\/instagram\.com/',
-                        //soundcloud
+                        '/^http(s)?:\/\/((www|plus)\.)?google\.com/',
+                        '/^http(s)?:\/\/(www\.)?youtube\.com/',
+                        '/^http(s)?:\/\/(www\.)?instagram\.com/',
                         '/^http(s)?:\/\/(www\.)?soundcloud\.com/',
-                        //pinterest
-                        '/^http:\/\/(www\.)?pinterest\.com/',
+                        '/^http(s)?:\/\/(www\.)?pinterest\.com/',
+                        '/^http(s)?:\/\/(www\.)?tumblr\.com/',
+                        '/^http(s)?:\/\/((www|en|es|fr)\.)?wikipedia\.org/',
                         // special case
                     ],
                     'ignored_path_patterns' => ['/^\/\_/']

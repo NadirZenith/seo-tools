@@ -267,7 +267,7 @@ class Link
      */
     public function setUrl($url)
     {
-        $this->url = trim($url, "\t\n\r\0/");
+        $this->url = trim($url);
 
         $this->parseUrl();
 
@@ -659,14 +659,13 @@ class Link
         // with this we mark the child with the parent source
         // ex: if a parent comes from a sitemap a child from a web page
         // will also have the sitemap LinkResource
-//        $link = new self($url, $this->getSources()->first());
         $link = new self($url);
 
         // check if child url is relative and has a path (ex: is not a #hash url)
         if (!$link->getHost() && $link->getPath()) {
             // child link url is relative, prepend link scheme and host
 
-            $link->setUrl(sprintf("%s://%s/%s", $this->getScheme(), $this->getHost(), $link->getPath()))
+            $link->setUrl(sprintf("%s://%s%s", $this->getScheme(), $this->getHost(), $link->getPath()))
                 ->setType(Link::TYPE_INTERNAL);
         }
 

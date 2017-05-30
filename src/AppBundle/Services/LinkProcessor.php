@@ -103,6 +103,7 @@ class LinkProcessor
             'image_patterns'        => ['/.(?:jpe?g|gif|png)/i']
         ]);
 
+        $resolver->setAllowedTypes('parsers', ['array']);
         $resolver->setAllowedTypes('ignored_url_patterns', ['array']);
         $resolver->setAllowedTypes('ignored_path_patterns', ['array']);
         $resolver->setAllowedTypes('image_patterns', ['array']);
