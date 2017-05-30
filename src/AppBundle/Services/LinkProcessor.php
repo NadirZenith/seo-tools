@@ -100,7 +100,7 @@ class LinkProcessor
 //            'parsers'               => [RobotsAnalyser::NAME, DefaultSitemapParser::NAME, DefaultHtmlParser::NAME],
             'ignored_url_patterns'  => [],
             'ignored_path_patterns' => [],
-            'image_patterns'        => ['/.(?:jpe?g|gif|png)/i']
+            'image_patterns'        => ['/.(?:jpe?g|gif|png|mp4)/i']// @todo file patterns too??
         ]);
 
         $resolver->setAllowedTypes('parsers', ['array']);

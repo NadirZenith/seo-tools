@@ -57,10 +57,16 @@ class AppParserParseCommand extends ContainerAwareCommand
                         '/^http(s)?:\/\/(www\.)?youtube\.com/',
                         '/^http(s)?:\/\/(www\.)?instagram\.com/',
                         '/^http(s)?:\/\/(www\.)?soundcloud\.com/',
+                        '/^http(s)?:\/\/(www\.)?mixcloud\.com/',
                         '/^http(s)?:\/\/(www\.)?pinterest\.com/',
                         '/^http(s)?:\/\/(www\.)?tumblr\.com/',
+                        '/^http(s)?:\/\/(www\.)?flickr\.com/',
+                        '/^http(s)?:\/\/(www\.)?beatport\.com/',
                         '/^http(s)?:\/\/((www|en|es|fr)\.)?wikipedia\.org/',
-                        // special case
+                        '/http(s)?:\/\/([a-z0-9]*\.)?bandcamp\.com/',
+                        // special cases (cm|tm|etc)
+                        '/\?q\=\//',
+                        '/\?date\=/',
                     ],
                     'ignored_path_patterns' => ['/^\/\_/']
                 ]

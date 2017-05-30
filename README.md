@@ -1,4 +1,22 @@
-smoketest
+seo-tools
 =========
 
-A Symfony project created on April 26, 2017, 5:03 pm.
+
+##tools:  
+ - smoketest
+ - discover
+ 
+ 
+##todo:  
+ - html validation
+ - links(web/images/etc) status codes
+ - canonical links
+ - robots
+ - sitemap
+ - duplicated content
+ - https to http
+ - urls with query string
+ - json-ld validation
+ - meta parser
+ - avoid discover infinite (ex: cm ?q=)
+ 
