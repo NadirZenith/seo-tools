@@ -4,7 +4,6 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Link;
 use AppBundle\Form\SimpleRunType;
-use AppBundle\Services\HttpClient;
 use AppBundle\Services\LinkCollection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -31,11 +30,8 @@ class SmoketestController extends Controller
             $processor = $this->get('app.link_processor');
             foreach ($form->get('urls')->getData() as $url) {
                 $links[] = $link = new Link($url);
-//                $links[] = $link = new Link("http://www.schweppes.dev");
-//                $links[] = $link = new Link("https://www.schweppes.es");
 
-//                d(sprintf("start processing %s", $link->getUrl()));
-                $processor->process($link, ['parsers' => 'html']);
+                $processor->process($link, ['parsers' => ['html']]);
             }
 
             return $this->render(
