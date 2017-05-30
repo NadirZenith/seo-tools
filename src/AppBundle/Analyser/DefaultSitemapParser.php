@@ -17,7 +17,7 @@ class DefaultSitemapParser extends BaseParser implements AnalyserInterface
     {
         if ($link->isRoot()) {
             // if is root link, query for sitemap.xml
-            $this->createLinkChildren($link, "sitemap.xml", $options);
+            $this->createLinkChildren($link, "/sitemap.xml", $options);
 
             return true;
         };

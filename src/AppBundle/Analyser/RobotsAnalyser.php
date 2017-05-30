@@ -16,7 +16,7 @@ class RobotsAnalyser extends BaseParser implements AnalyserInterface
     {
         // if is root link, query for robots
         if ($link->isRoot()) {
-            $this->createLinkChildren($link, "robots.txt", $options);
+            $this->createLinkChildren($link, "/robots.txt", $options);
 
             return true;
         };
