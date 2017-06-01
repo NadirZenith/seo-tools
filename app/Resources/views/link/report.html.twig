@@ -123,6 +123,10 @@
                                                                 {{ include('easy_admin/field_array.html.twig', { value: link.responseHeaders, view: 'show' }) }}
                                                             </div>
                                                             <div>
+                                                                <b>Response</b>
+                                                                {{ include('easy_admin/html_content.html.twig', { value: link.response, view: 'show' }) }}
+                                                            </div>
+                                                            <div>
                                                                 <b>Urls</b>
                                                                 {{ include('easy_admin/raw_urls.html.twig', { value: link.rawUrls, view: 'show' }) }}
                                                             </div>

@@ -151,7 +151,7 @@ class Link
     /**
      * @var Link
      *
-     * @ORM\ManyToOne(targetEntity="Link", cascade={"persist"}, fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="Link", fetch="EAGER")
      * @ORM\JoinColumn(onDelete="CASCADE") // allow delete root rows
      */
     private $root;
@@ -159,7 +159,7 @@ class Link
     /**
      * @var Link
      *
-     * @ORM\ManyToOne(targetEntity="Link", inversedBy="children", cascade={"persist"}, fetch="EAGER")
+     * @ORM\ManyToOne(targetEntity="Link", inversedBy="children", fetch="EAGER")
      * @ORM\JoinColumn(onDelete="CASCADE") // delete children when delete root
      */
     private $parent;
@@ -167,14 +167,14 @@ class Link
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="Link", mappedBy="parent", cascade={"persist", "remove"}, fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="Link", mappedBy="parent", cascade={"persist", "remove"})
      */
     private $children;
 
     /**
      * Many Links have Many Sources.
      * @var ArrayCollection
-     * @ORM\ManyToMany(targetEntity="LinkSource", cascade={"persist", "remove"}, fetch="EAGER")
+     * @ORM\ManyToMany(targetEntity="LinkSource", fetch="EAGER")
      * @ORM\JoinTable(name="links_sources",
      *      joinColumns={@ORM\JoinColumn(name="link_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="source_id", referencedColumnName="id")}

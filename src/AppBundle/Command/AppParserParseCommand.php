@@ -13,16 +13,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AppParserParseCommand extends ContainerAwareCommand
 {
+
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
         $this
             ->setName('app:parser:parse')
             ->setDescription('Parse waiting links')
             ->addArgument('id', InputArgument::OPTIONAL, 'Id from link to see status')
+            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, 'Pager limit', 100)
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Test mode, do not save')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Does not throw exception');
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
@@ -35,7 +43,7 @@ class AppParserParseCommand extends ContainerAwareCommand
          */
         $manager = $this->getContainer()->get('doctrine')->getManager();
 
-        $links = $this->getLinks($input->getArgument('id'), $manager);
+        $links = $this->getLinks($input->getArgument('id'), $input->getOption('limit'), $manager);
 
         if (!$links) {
             $output->writeln('No waiting links');
@@ -51,9 +59,9 @@ class AppParserParseCommand extends ContainerAwareCommand
             $status = $processor->process($link, [
                     'force'                 => $input->getOption('force'),
                     'ignored_url_patterns'  => [
-                        '/^http(s)?:\/\/(www\.)?facebook\.com/',
+                        '/^http(s)?:\/\/([a-z0-9]*\.)?facebook\.com/',
                         '/^http(s)?:\/\/(www\.)?twitter\.com/',
-                        '/^http(s)?:\/\/((www|plus)\.)?google\.com/',
+                        '/^http(s)?:\/\/([a-z0-9]*\.)?google\.com/',
                         '/^http(s)?:\/\/(www\.)?youtube\.com/',
                         '/^http(s)?:\/\/(www\.)?instagram\.com/',
                         '/^http(s)?:\/\/(www\.)?soundcloud\.com/',
@@ -62,7 +70,8 @@ class AppParserParseCommand extends ContainerAwareCommand
                         '/^http(s)?:\/\/(www\.)?tumblr\.com/',
                         '/^http(s)?:\/\/(www\.)?flickr\.com/',
                         '/^http(s)?:\/\/(www\.)?beatport\.com/',
-                        '/^http(s)?:\/\/((www|en|es|fr)\.)?wikipedia\.org/',
+                        '/^http(s)?:\/\/(www\.)?linkedin\.com/',
+                        '/^http(s)?:\/\/([a-z0-9]*\.)?wikipedia\.org/',
                         '/http(s)?:\/\/([a-z0-9]*\.)?bandcamp\.com/',
                         // special cases (cm|tm|etc)
                         '/\?q\=\//',
@@ -102,12 +111,18 @@ class AppParserParseCommand extends ContainerAwareCommand
         $output->writeln(sprintf("Finished parsing %d links", count($links)));
     }
 
-    private function getLinks($id, EntityManager $manager)
+    /**
+     * @param int $id
+     * @param int $limit
+     * @param EntityManager $manager
+     * @return \AppBundle\Entity\Link[]|array
+     */
+    private function getLinks($id, $limit, EntityManager $manager)
     {
         if ($id) {
             return $manager->getRepository(Link::class)->findBy(['id' => $id]);
         }
 
-        return $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING]);
+        return $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING], null, (int)$limit);
     }
 }
