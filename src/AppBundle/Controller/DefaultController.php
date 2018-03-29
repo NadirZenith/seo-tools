@@ -45,12 +45,8 @@ class DefaultController extends Controller
         $parsedUrls = array();
         if ($form->isSubmitted() && $form->isValid()) {
             set_time_limit(0);
-            $data = $form->getData();
-            $urls = array_values(explode("\r\n", $data['urls']));
+            $urls = $form->get('urls')->getData();
 
-
-            //            $br = new \Buzz\Message\Request();
-            //            $br->s
             /**
              * @var Browser $client
              */

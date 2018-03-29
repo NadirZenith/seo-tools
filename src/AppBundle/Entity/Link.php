@@ -188,7 +188,7 @@ class Link
      * @param null $url
      * @param LinkSource $source
      */
-    public function __construct($url, $source = null)
+    public function __construct($url = null, $source = null)
     {
         $this->children = new ArrayCollection();
         $this->sources = new ArrayCollection();
