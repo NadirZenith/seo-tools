@@ -60,16 +60,17 @@ else
     display_success "Php Mess Detector: $version"
 fi
 
-#phpdoc binary
-if [ ! -x 'bin/phpdoc' ]
-then
-    display_error "PhpDocumentor not found in 'bin' folder"
-    display_info "Do you forgot to create a link? (ln -s /usr/bin/phpdoc bin/phpdoc)"
-    die
-else
-    version=`bin/phpdoc --version`
-    display_success "Php Documentor: $version"
-fi
+##phpdoc binary
+## version conflict when composer require phpdocumentor/phpdocumentor --dev
+#if [ ! -x 'bin/phpdoc' ]
+#then
+#    display_error "PhpDocumentor not found in 'bin' folder"
+#    display_info "Do you forgot to create a link? (ln -s /usr/bin/phpdoc bin/phpdoc)"
+#    die
+#else
+#    version=`bin/phpdoc --version`
+#    display_success "Php Documentor: $version"
+#fi
 
 #metrics binary
 if [ ! -x 'bin/phpmetrics' ]
@@ -136,7 +137,7 @@ if [ ! -z "$phpcs_summary" ]
 then
     phpcs=`bin/phpcs --standard=build/phpcs.xml -n src/`
     display_error "Fix phpcs errors:\n$phpcs"
-    die
+#    die
 else
     display_success "No Php Code Sniffer errors"
 fi
@@ -153,10 +154,8 @@ fi
 display_info "Generating phpmetrics in build/phpmetrics:"
 bin/phpmetrics --report-html=build/phpmetrics src
 
-display_info "Generating documentation in build/docs:"
-bin/phpdoc -p -n --sourcecode --title="Seo Tools" -d ./src -t build/docs
-
-
+#display_info "Generating documentation in build/docs:"
+#bin/phpdoc -p -n --sourcecode --title="Seo Tools" -d ./src -t build/docs
 
 #Check for htaccess(apache only)
 #if [ ! -e 'web/.htaccess' ]
@@ -165,11 +164,11 @@ bin/phpdoc -p -n --sourcecode --title="Seo Tools" -d ./src -t build/docs
 #    display_info ".htaccess generated"
 #fi
 #Check for robots
-if [ ! -e 'web/robots.txt' ]
-then
-    cp web/robots.txt.dist web/robots.txt
-    display_info "robots.txt generated"
-fi
+#if [ ! -e 'web/robots.txt' ]
+#then
+#    cp web/robots.txt.dist web/robots.txt
+#    display_info "robots.txt generated"
+#fi
 
 #display_success "------------ Start deploy --------------"
 #die;

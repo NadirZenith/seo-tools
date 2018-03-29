@@ -21,19 +21,8 @@ class SimpleRunType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add(
-                'urls', TextareaType::class, [
-                    'label' => false,
-                ]
-            );
-
-        $builder
-            ->add(
-                'submit', SubmitType::class, [
-                    'label' => 'form.label.submit'
-                ]
-            )//
-        ;
+            ->add('urls', TextareaType::class, ['label' => false,])
+            ->add('submit', SubmitType::class, ['label' => 'form.label.submit']);
 
         $builder->get('urls')
             ->addModelTransformer(new CallbackTransformer(

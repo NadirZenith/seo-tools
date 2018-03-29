@@ -3,7 +3,11 @@
 #chown -R www-data:www-data /var
 #php bin/console cache:clear
 
-composer install;
+#composer install;
+#ls -l
+#pwd
+
+./build/deploy.sh dev
 
 #php-fpm;
 

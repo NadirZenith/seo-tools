@@ -2,7 +2,6 @@ version: "3.1"
 services:
     db:
       image: mariadb:10.1
-      container_name: docker-base-mariadb
       working_dir: /application
       volumes:
         - ./volume/db/data:/var/lib/mysql
@@ -14,7 +13,6 @@ services:
 
     webserver:
       image: nginx:alpine
-      container_name: docker-base-webserver
       working_dir: /application
       volumes:
           - ${SYMFONY_APP_PATH}:/application
@@ -25,7 +23,6 @@ services:
 
     php:
       build: php-fpm
-      container_name: docker-base-php
       working_dir: /application
       volumes:
           - ${SYMFONY_APP_PATH}:/application

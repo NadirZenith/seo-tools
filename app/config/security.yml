@@ -15,7 +15,7 @@ security:
         in_memory:
             memory:
                 users:
-                    dev:    { password: 'dev', roles: !php/const:AppBundle\Entity\User::ROLE_SUPER_ADMIN }
+                    dev:    { password: '%password_dev%', roles: !php/const:AppBundle\Entity\User::ROLE_SUPER_ADMIN }
 
         fos_userbundle:
             id: fos_user.user_provider.username

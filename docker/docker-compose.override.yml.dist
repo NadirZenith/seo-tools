@@ -2,28 +2,24 @@ version: "3.1"
 services:
     mailhog:
       image: mailhog/mailhog:latest
-      container_name: docker-base-mailhog
       ports:
-          - "8081:8025"
+          - "81:8025"
 
     elk:
       image: willdurand/elk
-      container_name: docker-base-elk
       ports:
-          - "8082:80"
+          - "82:80"
       volumes:
           - ${SYMFONY_APP_PATH}:/application
           - ./elk/logstash:/etc/logstash
           - ./elk/logstash/patterns:/opt/logstash/patterns
-#      volumes_from: #< v3
 #          - webserver
           - ./volume/logs/nginx/:/var/log/nginx
 #          - php
-          - ./volume/logs/symfony:/application/app/logs
+          - ./volume/logs/symfony:/application/var/logs
 
     selenium:
       image: selenium/standalone-chrome-debug
-      container_name: docker-base-tests
       links:
         - webserver
       ports:
@@ -35,8 +31,8 @@ services:
     db:
       ports:
         - "3306:3306"
-      volumes:
-        - ./volume/db/dump:/docker-entrypoint-initdb.d
+#      volumes:
+#        - ./volume/db/dump:/docker-entrypoint-initdb.d
 
     # enable run tests & debug
     php:

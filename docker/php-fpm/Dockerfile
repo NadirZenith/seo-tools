@@ -3,18 +3,8 @@ FROM php:7.1-fpm
 
 #COPY php.ini /usr/local/etc/php/
 
-# Why install icu, when you are installing it from source?
-# don't apt-get update on its own RUN line
-# and clean up apt lists once things are installed
-# RUN apt-get update && apt-get install -y libicu-dev && rm -rf /var/lib/apt/lists/*
-
 RUN apt-get update && apt-get install -y \
-    gcc \
-    git \
-    # for gd
-    libpng-dev \
-    # for assets compilation with yuicompressor
-    openjdk-7-jre \
+    gcc git zip unzip libjpeg-dev libpng-dev openjdk-7-jre \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsS -o /tmp/icu.tgz -L http://download.icu-project.org/files/icu4c/59.1/icu4c-59_1-src.tgz \
@@ -23,22 +13,18 @@ RUN curl -fsS -o /tmp/icu.tgz -L http://download.icu-project.org/files/icu4c/59.
   && ./configure --prefix=/usr/local \
   && make \
   && make install \
-# just to be certain things are cleaned up
   && rm -rf /tmp/icu*
 
 # PHP_CPPFLAGS are used by the docker-php-ext-* scripts
 ENV PHP_CPPFLAGS="$PHP_CPPFLAGS -std=c++11"
 
 RUN docker-php-ext-configure intl --with-icu-dir=/usr/local && \
-    docker-php-ext-install intl
+    docker-php-ext-configure gd --with-png-dir=/usr/lib/ --with-jpeg-dir=/usr/lib/ && \
+    docker-php-ext-install intl pdo pdo_mysql opcache gd
 
-RUN apt-get install -y \
-    && docker-php-ext-install pdo pdo_mysql opcache gd
-
-# **
 # xdebug
-RUN pecl install xdebug-2.5.0 \
-    && docker-php-ext-enable xdebug
+RUN pecl install xdebug-2.5.0 apcu\
+    && docker-php-ext-enable xdebug apcu
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
@@ -46,7 +32,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64
 
-#RUN echo "root:root"|chpasswd
+RUN echo "root:root"|chpasswd
 #RUN usermod -u 1000 www-data
 RUN useradd -ms /bin/bash dev
 RUN usermod -u 1000 dev
