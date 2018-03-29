@@ -1,0 +1,46 @@
+version: "3.1"
+services:
+    mailhog:
+      image: mailhog/mailhog:latest
+      container_name: docker-base-mailhog
+      ports:
+          - "8081:8025"
+
+    elk:
+      image: willdurand/elk
+      container_name: docker-base-elk
+      ports:
+          - "8082:80"
+      volumes:
+          - ${SYMFONY_APP_PATH}:/application
+          - ./elk/logstash:/etc/logstash
+          - ./elk/logstash/patterns:/opt/logstash/patterns
+#      volumes_from: #< v3
+#          - webserver
+          - ./volume/logs/nginx/:/var/log/nginx
+#          - php
+          - ./volume/logs/symfony:/application/app/logs
+
+    selenium:
+      image: selenium/standalone-chrome-debug
+      container_name: docker-base-tests
+      links:
+        - webserver
+      ports:
+          # allow watch browser over vnc with(pass: secret):
+          # $ vncviewer 127.0.0.1:5900 --ViewOnly
+          - "5900:5900"
+
+    # expose db for debugging & import
+    db:
+      ports:
+        - "3306:3306"
+      volumes:
+        - ./volume/db/dump:/docker-entrypoint-initdb.d
+
+    # enable run tests & debug
+    php:
+      environment:
+        TESTING: 1
+      volumes:
+          - ./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/100-xdebug.ini

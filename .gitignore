@@ -25,3 +25,12 @@
 /bin/*
 !/bin/console
 !/bin/symfony_requirements
+
+docker/.env
+docker/docker-compose.override.yml
+docker/volume/logs/app/*
+!docker/volume/logs/app/.gitkeep
+docker/volume/logs/webserver/*
+!docker/volume/logs/webserver/.gitkeep
+docker/volume/db/data/*
+!docker/volume/db/data/.gitkeep
