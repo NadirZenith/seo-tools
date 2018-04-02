@@ -36,7 +36,12 @@ class AppParserStatusCommand extends ContainerAwareCommand
 
         if ($input->getOption('list')) {
             if ($id = (int)$input->getArgument('id')) {
-                $roots = $manager->getRepository(Link::class)->createQueryBuilder('l')->where('l.parent = :id and l.status = \'waiting\'')->setParameter('id', $id)->getQuery()->getResult();
+                $roots = $manager->getRepository(Link::class)
+                    ->createQueryBuilder('l')
+                    ->where('l.parent = :id and l.status = :status')
+                    ->setParameter('id', $id)
+                    ->setParameter('status', Link::STATUS_WAITING)
+                    ->getQuery()->getResult();
 
                 foreach ($roots as $link) {
                     $output->writeln(sprintf("#%d %s", $link->getId(), $link->getUrl()));
@@ -45,7 +50,11 @@ class AppParserStatusCommand extends ContainerAwareCommand
                 return;
             }
 
-            $roots = $manager->getRepository(Link::class)->createQueryBuilder('l')->where('l.status = \'waiting\'')->getQuery()->getResult();
+            $roots = $manager->getRepository(Link::class)
+                ->createQueryBuilder('l')
+                ->where("l.status = :status")
+                ->setParameter('status', Link::STATUS_WAITING)
+                ->getQuery()->getResult();
 
             foreach ($roots as $link) {
                 $output->writeln(sprintf("#%d %s", $link->getId(), $link->getUrl()));
@@ -54,26 +63,47 @@ class AppParserStatusCommand extends ContainerAwareCommand
             return;
         }
 
-        $id = (int)$input->getArgument('id');
+        $root = (int)$input->getArgument('id');
 
-        $output->writeln(sprintf("Waiting parser: %d links", $this->getLinksCount($manager, Link::STATUS_WAITING, $id)));
-        $output->writeln(sprintf("Already parsed: %d links", $this->getLinksCount($manager, Link::STATUS_PARSED, $id)));
-        $output->writeln(sprintf("Skipped parser: %d links", $this->getLinksCount($manager, Link::STATUS_SKIPPED, $id)));
+        $output->writeln(sprintf("Waiting parser: %d links", $this->getLinksCount(['status' => Link::STATUS_WAITING], $manager, $root)));
+        $output->writeln(sprintf("Waiting parser internal: %d links", $this->getLinksCount(['status' => Link::STATUS_WAITING, 'type' => Link::TYPE_INTERNAL], $manager, $root)));
+        $output->writeln(sprintf("Already parsed: %d links", $this->getLinksCount(['status' => Link::STATUS_PARSED], $manager, $root)));
+        $output->writeln(sprintf("Skipped parser: %d links", $this->getLinksCount(['status' => Link::STATUS_SKIPPED], $manager, $root)));
     }
 
     /**
+     * @param $filter
      * @param EntityManager $manager
-     * @param $status
-     * @param null $id
+     * @param $root
      * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    private function getLinksCount(EntityManager $manager, $status, $id = null)
+    private function getLinksCount($filter, EntityManager $manager, $root)
     {
-        $queryBuilder = $manager->getRepository(Link::class)->createQueryBuilder('l')->select('count(l.id)')->where('l.status = :status')->setParameter('status', $status);
-        if ($id) {
-            $queryBuilder->andWhere('l.root = :root')->setParameter('root', $id);
+        $qb = $manager->getRepository(Link::class)
+            ->createQueryBuilder('l')
+            ->select('count(l.id)');
+
+        $filter = array_merge([
+            'status' => Link::STATUS_WAITING
+        ], (array)$filter);
+
+        if (isset($filter['status'])) {
+            $qb
+                ->andWhere('l.status = :status')
+                ->setParameter('status', $filter['status']);
         }
 
-        return $queryBuilder->getQuery()->getSingleScalarResult();
+        if (isset($filter['type'])) {
+            $qb
+                ->andWhere('l.type = :type')
+                ->setParameter('type', $filter['type']);
+        }
+
+        if ($root) {
+            $qb->andWhere('l.root = :root')->setParameter('root', $root);
+        }
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 }

@@ -3,12 +3,13 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
+use AppBundle\Entity\LinkSource;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\DomCrawler\Crawler;
 
 class DefaultHtmlParser extends BaseParser implements AnalyserInterface
 {
-    const NAME = 'html';
+    const NAME = LinkSource::SOURCE_HTML;
 
     /**
      * @inheritdoc

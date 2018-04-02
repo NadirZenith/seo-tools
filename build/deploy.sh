@@ -19,9 +19,19 @@ fi
 #Check php binary
 if [ ! -x 'bin/php' ]
 then
-    display_error "PHP CLI not found "
-    display_info "Do you forgot to create a link? (ln -s /usr/bin/php bin/php)"
-    die
+    php=`which php`
+    if [ -z $php ]
+    then
+      display_error "PHP CLI not found "
+      display_info "Do you forgot to create a link? (ln -s /usr/bin/php bin/php)"
+      die
+    fi
+
+    display_info $php
+    ln -s $php bin/php
+
+    version=`bin/php -v | grep cli`
+    display_success "PHP:      $version"
 else
     version=`bin/php -v | grep cli`
     display_success "PHP:      $version"
@@ -183,6 +193,7 @@ then
     bin/composer install
 
     display_success 'Update schema'
+    bin/php bin/console doctrine:database:create
     bin/php bin/console doctrine:schema:update --dump-sql --force
 
 #    display_success 'Generate ASSETS'

@@ -21,6 +21,15 @@ $debug = getenv('SYMFONY_DEBUG') !== '0' && !$input->hasParameterOption(['--no-d
 
 if ($debug) {
     Debug::enable();
+
+    if(class_exists('Kint')){
+        function dd()
+        {
+            \Kint::dump(func_get_args());
+            exit;
+        }
+        \Kint::$aliases[] = 'dd';
+    }
 }
 
 $kernel = new AppKernel($env, $debug);

@@ -3,11 +3,12 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
+use AppBundle\Entity\LinkSource;
 use GuzzleHttp\Psr7\Response;
 
 class RobotsAnalyser extends BaseParser implements AnalyserInterface
 {
-    const NAME = 'robots';
+    const NAME = LinkSource::SOURCE_ROBOTS;
 
     /**
      * @inheritdoc

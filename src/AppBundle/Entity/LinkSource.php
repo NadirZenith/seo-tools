@@ -12,6 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LinkSource
 {
+    const SOURCE_HTML = 'html';
+    const SOURCE_SITEMAP = 'sitemap';
+    const SOURCE_ROBOTS = 'robots';
+
     /**
      * @var int
      *

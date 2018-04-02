@@ -12,6 +12,8 @@ use AppBundle\Analyser\DefaultSitemapParser;
 use AppBundle\Analyser\DefaultHtmlParser;
 use AppBundle\Entity\Link;
 use Doctrine\ORM\EntityManager;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -32,6 +34,11 @@ class LinkProcessor
     private $analysers = [];
 
     /**
+     * @var string[]
+     */
+    private $userAgents = [];
+
+    /**
      * UrlParser constructor.
      * @param HttpClient $client
      * @param EntityManager $entityManager
@@ -47,6 +54,8 @@ class LinkProcessor
 
         // analyse tags (metas, a, imgs, etc...)
         $this->addAnalyser(new DefaultHtmlParser($entityManager));
+
+        $this->userAgents = explode("\n", file_get_contents(__DIR__ . '/UserAgents'));
     }
 
     /**
@@ -67,24 +76,98 @@ class LinkProcessor
     {
         $options = $this->initOptions($options);
 
+        $request = $this->createRequest($link);
+
+        $requestOptions = ['timeout' => 10];
+
         try {
             /** @var \GuzzleHttp\Psr7\Response $response */
-            $response = $this->client->get($link->getUrl());
+            $response = $this->client->send($request, $requestOptions);
 
             $this->processResponse($link, $response, $options);
+
+            $link->setStatus(Link::STATUS_PARSED);
+
+            return true;
         } catch (\Exception $e) {
             $link->setStatus(Link::STATUS_SKIPPED);
             $link->setStatusMessage(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
-            if (!$options['force']) {
-//                dd(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
-                throw new \Exception(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
+            if ($options['force']) {
+                return false;
             }
-            return false;
+
+            throw new \Exception(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
+        }
+    }
+
+    /**
+     * @param Link[] $links
+     * @param array $options
+     * @param \Closure $each
+     * @param \Closure $final
+     * @return bool
+     */
+    public function processAsync(array $links, $options = [], \Closure $each = null, \Closure $final = null)
+    {
+        $options = $this->initOptions($options);
+
+        // requests from links
+        $requests = $this->getLinksRequests();
+
+        $requestOptions = ['timeout' => 10];
+
+        // pool
+        $poolOptions = [
+            'options' => $requestOptions,
+            'concurrency' => 5,
+            'fulfilled' => function (Response $response, $i) use ($links, $options, $each) {
+                // this is delivered each successful response
+//                $link = $links[$i];
+                $this->processResponse($links[$i], $response, $options);
+                $links[$i]->setStatus(Link::STATUS_PARSED);
+
+                if ($each) {
+                    $each($links[$i], $i);
+                }
+            },
+            'rejected' => function ($reason, $i) use ($links, $options, $each) {
+                // this is delivered each failed request
+                $links[$i]->setStatus(Link::STATUS_SKIPPED);
+                $links[$i]->setStatusMessage(sprintf('Browser exception: %s (in %s:%d)', $reason->getMessage(), $reason->getFile(), $reason->getLine()));
+//                if (!$options['force']) {
+//                    throw new \Exception(sprintf('Browser exception: %s (in %s:%d)', $e->getMessage(), $e->getFile(), $e->getLine()));
+//                }
+
+                if ($each) {
+                    $each($links[$i], $i, $reason);
+                }
+            },
+        ];
+        $pool = new Pool($this->client, $requests($links), $poolOptions);
+
+        // Initiate the transfers and create a promise
+        $promise = $pool->promise();
+
+        // Force the pool of requests to complete.
+        $promise->wait();
+
+        if ($final) {
+            $promise->then($final, $final);
         }
 
-        $link->setStatus(Link::STATUS_PARSED);
-
         return true;
+    }
+
+    /**
+     * @return \Closure
+     */
+    private function getLinksRequests()
+    {
+        return function ($links) {
+            for ($i = 0; $i < count($links); $i++) {
+                yield $this->createRequest($links[$i]);
+            }
+        };
     }
 
     /**
@@ -95,12 +178,11 @@ class LinkProcessor
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
-            'force'                 => false,
-            'parsers'               => array_keys($this->analysers),
-//            'parsers'               => [RobotsAnalyser::NAME, DefaultSitemapParser::NAME, DefaultHtmlParser::NAME],
-            'ignored_url_patterns'  => [],
+            'force' => false,
+            'parsers' => array_keys($this->analysers),
+            'ignored_url_patterns' => [],
             'ignored_path_patterns' => [],
-            'image_patterns'        => ['/.(?:jpe?g|gif|png|mp4|pdf)/i']// @todo file patterns too??
+            'image_patterns' => ['/.(?:jpe?g|gif|png|mp4|pdf)/i']// @todo file patterns too??
         ]);
 
         $resolver->setAllowedTypes('parsers', ['array']);
@@ -141,5 +223,14 @@ class LinkProcessor
 
             $this->analysers[$parser]->analyse($link, $response, $options);
         }
+    }
+
+    private function createRequest(Link $link)
+    {
+        $method = $link->getType() === Link::TYPE_EXTERNAL ? 'HEAD' : 'GET';
+
+        return new Request($method, $link->getUrl(), [
+            'User-Agent' => $this->userAgents[array_rand($this->userAgents)]
+        ]);
     }
 }

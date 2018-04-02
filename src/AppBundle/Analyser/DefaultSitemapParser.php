@@ -3,12 +3,13 @@
 namespace AppBundle\Analyser;
 
 use AppBundle\Entity\Link;
+use AppBundle\Entity\LinkSource;
 use GuzzleHttp\Psr7\Response;
 use SimpleXMLElement;
 
 class DefaultSitemapParser extends BaseParser implements AnalyserInterface
 {
-    const NAME = 'sitemap';
+    const NAME = LinkSource::SOURCE_SITEMAP;
 
     /**
      * @inheritdoc

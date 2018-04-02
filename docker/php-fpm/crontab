@@ -1,0 +1,6 @@
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+
+# <timing>    <user>    <command>
+#* * * * *    echo      "Hello world, ${echo whoami}" >> /application/var/logs/cron.log 2>&1
+#* * * * *    dev /bin/bash /application/build/cron.sh dev >> /application/var/logs/cron.log 2>&1
+* * * * *     dev       cd /application && build/cron.sh dev >> /application/var/logs/cron.log 2>&1

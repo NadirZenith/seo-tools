@@ -5,13 +5,12 @@ namespace AppBundle\Command;
 use AppBundle\Entity\Link;
 use AppBundle\Services\LinkProcessor;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AppParserParseCommand extends ContainerAwareCommand
+class AppParserParseCommand extends AppBaseParserCommand
 {
 
     /**
@@ -23,6 +22,8 @@ class AppParserParseCommand extends ContainerAwareCommand
             ->setName('app:parser:parse')
             ->setDescription('Parse waiting links')
             ->addArgument('id', InputArgument::OPTIONAL, 'Id from link to see status')
+            ->addOption('status', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'Filter links by status', [Link::STATUS_WAITING])
+            ->addOption('type', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'Filter links by type', [Link::TYPE_INTERNAL])
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, 'Pager limit', 100)
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Test mode, do not save')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Does not throw exception');
@@ -43,7 +44,8 @@ class AppParserParseCommand extends ContainerAwareCommand
          */
         $manager = $this->getContainer()->get('doctrine')->getManager();
 
-        $links = $this->getLinks($input->getArgument('id'), $input->getOption('limit'), $manager);
+//        $links = $this->getLinks($input->getArgument('id'), $input->getOption('limit'), $manager);
+        $links = $this->getLinks($input, $manager);
 
         if (!$links) {
             $output->writeln('No waiting links');
@@ -56,30 +58,8 @@ class AppParserParseCommand extends ContainerAwareCommand
          */
         foreach ($links as $k => $link) {
             $output->write(sprintf('%d/%d -> Start parsing url %s', ++$k, count($links), $link->getUrl()));
-            $status = $processor->process($link, [
-                    'force'                 => $input->getOption('force'),
-                    'ignored_url_patterns'  => [
-                        '/^http(s)?:\/\/([a-z0-9]*\.)?facebook\.com/',
-                        '/^http(s)?:\/\/(www\.)?twitter\.com/',
-                        '/^http(s)?:\/\/([a-z0-9]*\.)?google\.com/',
-                        '/^http(s)?:\/\/(www\.)?youtube\.com/',
-                        '/^http(s)?:\/\/(www\.)?instagram\.com/',
-                        '/^http(s)?:\/\/(www\.)?soundcloud\.com/',
-                        '/^http(s)?:\/\/(www\.)?mixcloud\.com/',
-                        '/^http(s)?:\/\/(www\.)?pinterest\.com/',
-                        '/^http(s)?:\/\/(www\.)?tumblr\.com/',
-                        '/^http(s)?:\/\/(www\.)?flickr\.com/',
-                        '/^http(s)?:\/\/(www\.)?beatport\.com/',
-                        '/^http(s)?:\/\/(www\.)?linkedin\.com/',
-                        '/^http(s)?:\/\/([a-z0-9]*\.)?wikipedia\.org/',
-                        '/http(s)?:\/\/([a-z0-9]*\.)?bandcamp\.com/',
-                        // special cases (cm|tm|etc)
-                        '/\?q\=\//',
-                        '/\?date\=/',
-                    ],
-                    'ignored_path_patterns' => ['/^\/\_/']
-                ]
-            );
+
+            $status = $processor->process($link, $this->getParserOptions($input));
 
             $output->writeln(sprintf(" - status: %d", $link->getStatusCode()));
 
@@ -96,33 +76,20 @@ class AppParserParseCommand extends ContainerAwareCommand
                 $output->writeln(sprintf("    Status message: %s\n", $link->getStatusMessage()));
             }
 
-            $manager->persist($link);
-
             try {
                 if (!$input->getOption('dry-run')) {
+                    $manager->persist($link);
                     $manager->flush();
                 }
+
+                // $manager->detach($link); // new entity in relation exceptions
             } catch (\Exception $e) {
+
                 $output->writeln($e->getMessage());
                 break;
             }
         }
 
         $output->writeln(sprintf("Finished parsing %d links", count($links)));
-    }
-
-    /**
-     * @param int $id
-     * @param int $limit
-     * @param EntityManager $manager
-     * @return \AppBundle\Entity\Link[]|array
-     */
-    private function getLinks($id, $limit, EntityManager $manager)
-    {
-        if ($id) {
-            return $manager->getRepository(Link::class)->findBy(['id' => $id]);
-        }
-
-        return $manager->getRepository(Link::class)->findBy(['status' => Link::STATUS_WAITING], null, (int)$limit);
     }
 }

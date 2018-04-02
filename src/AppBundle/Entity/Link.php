@@ -124,7 +124,7 @@ class Link
      */
     private $metas = [
         'response_headers' => null,
-        'link_urls'        => null
+        'link_urls' => null
     ];
 
     /**
@@ -218,10 +218,13 @@ class Link
 
     /**
      * @param array $redirects
+     * @return Link
      */
     public function setRedirects($redirects)
     {
         $this->redirects = $redirects;
+
+        return $this;
     }
 
     /**
@@ -342,10 +345,13 @@ class Link
 
     /**
      * @param string $response
+     * @return Link
      */
     public function setResponse($response)
     {
         $this->response = $response;
+
+        return $this;
     }
 
     /**
@@ -358,10 +364,13 @@ class Link
 
     /**
      * @param string $statusCode
+     * @return Link
      */
     public function setStatusCode($statusCode)
     {
         $this->statusCode = $statusCode;
+
+        return $this;
     }
 
     /**
@@ -374,10 +383,13 @@ class Link
 
     /**
      * @param array $metas
+     * @return Link
      */
     public function setMetas(array $metas)
     {
         $this->metas = $metas;
+
+        return $this;
     }
 
     /**
@@ -415,10 +427,13 @@ class Link
 
     /**
      * @param array $rawUrls
+     * @return Link
      */
     public function setRawUrls(array $rawUrls)
     {
         $this->rawUrls = $rawUrls;
+
+        return $this;
     }
 
     /**
@@ -455,10 +470,13 @@ class Link
 
     /**
      * @param ArrayCollection $children
+     * @return Link
      */
     public function setChildren(ArrayCollection $children)
     {
         $this->children = $children;
+
+        return $this;
     }
 
     /**
@@ -488,10 +506,13 @@ class Link
 
     /**
      * @param Link $parent
+     * @return Link
      */
     public function setParent($parent)
     {
         $this->parent = $parent;
+
+        return $this;
     }
 
 
@@ -505,10 +526,13 @@ class Link
 
     /**
      * @param string $type
+     * @return Link
      */
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
     }
 
     /**
@@ -521,10 +545,13 @@ class Link
 
     /**
      * @param Link $root
+     * @return Link
      */
     public function setRoot(Link $root)
     {
         $this->root = $root;
+
+        return $this;
     }
 
     /**
@@ -575,10 +602,13 @@ class Link
 
     /**
      * @param array $validation
+     * @return Link
      */
     public function setValidation($validation)
     {
         $this->validation = $validation;
+
+        return $this;
     }
 
     /**
@@ -591,10 +621,13 @@ class Link
 
     /**
      * @param string $statusMessage
+     * @return Link
      */
     public function setStatusMessage($statusMessage)
     {
         $this->statusMessage = $statusMessage;
+
+        return $this;
     }
 
     /**
@@ -620,10 +653,13 @@ class Link
 
     /**
      * @param array $responseHeaders
+     * @return Link
      */
     public function setResponseHeaders($responseHeaders)
     {
         $this->responseHeaders = $responseHeaders;
+
+        return $this;
     }
 
     /**
@@ -644,10 +680,13 @@ class Link
 
     /**
      * @param array $rawImgs
+     * @return Link
      */
     public function setRawImgs($rawImgs)
     {
         $this->rawImgs = $rawImgs;
+
+        return $this;
     }
 
     /**
@@ -665,16 +704,16 @@ class Link
         if (!$link->getHost() && $link->getPath()) {
             // child link url is relative, prepend link scheme and host
 
-            $link->setUrl(sprintf("%s://%s%s", $this->getScheme(), $this->getHost(), $link->getPath()))
+            return $link->setUrl(sprintf("%s://%s%s", $this->getScheme(), $this->getHost(), $link->getPath()))
                 ->setType(Link::TYPE_INTERNAL);
         }
 
         if ($this->getHost() === $link->getHost() && $this->getScheme() !== $link->getScheme()) {
-            $link->setType(Link::TYPE_SCHEME_CHANGE);
+            return $link->setType(Link::TYPE_SCHEME_CHANGE);
         }
 
         if ($this->getHost() !== $link->getHost()) {
-            $link->setType(Link::TYPE_EXTERNAL);
+            return $link->setType(Link::TYPE_EXTERNAL);
         }
 
         return $link;
@@ -716,10 +755,13 @@ class Link
 
     /**
      * @param ArrayCollection $sources
+     * @return Link
      */
     public function setSources($sources)
     {
         $this->sources = $sources;
+
+        return $this;
     }
 
 
